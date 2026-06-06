@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ENUMS (important pour éviter les erreurs de string)
+//
+
+enum RoleEmploye {
+  stagiaire
+  employe
+  co_patron
+  patron
+}
+
+enum RoleSite {
+  admin
+  patron
+  co_patron
+  employe
+}
+
+enum TypeClient {
+  particulier
+  entreprise
+}
+
+enum CategorieProduit {
+  plat
+  boisson
+}
+
+enum StatutVente {
+  en_cours
+  validee
+  annulee
+}
+
+//
+// USERS (LOGIN SITE)
+//
+
+model Utilisateur {
+  id            Int      @id @default(autoincrement())
+
+  employeId     Int      @unique
+  employe       Employe  @relation(fields: [employeId], references: [id])
+
+  username      String   @unique
+  passwordHash  String
+
+  roleSite      RoleSite
+
+  actif         Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+}
+
+//
+// ENTREPRISE PRINCIPALE (TON ENTREPRISE RP)
+//
+
+model Entreprise {
+  id           Int      @id @default(autoincrement())
+  nom          String
+  dateCreation DateTime @default(now())
+
+  clients      Client[]
+  gringotts    Gringotts?
+}
+
+//
+// ENTREPRISES EXTERNES (CLIENTS ENTREPRISES)
+//
+
+model EntrepriseCliente {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  createdAt DateTime @default(now())
+
+  clients   Client[]
+}
+
+//
+// CLIENTS (particuliers + entreprises)
+//
+
+model Client {
+  id                   Int                 @id @default(autoincrement())
+
+  typeClient           TypeClient?
+
+  nom                  String
+  prenom               String?
+
+  entrepriseClienteId  Int?
+  entrepriseCliente    EntrepriseCliente? @relation(fields: [entrepriseClienteId], references: [id])
+
+  entrepriseId         Int?
+  entreprise           Entreprise?        @relation(fields: [entrepriseId], references: [id])
+
+  createdAt            DateTime @default(now())
+
+  ventes               Vente[]
+}
+
+//
+// EMPLOYÉS
+//
+
+model Employe {
+  id                 Int      @id @default(autoincrement())
+
+  nom                String
+  prenom             String
+
+  role               RoleEmploye
+
+  dateEmbauche       DateTime?
+  salaire            Float?
+  pourcentagePrime   Float?
+  actif              Boolean  @default(true)
+  notes              String?
+
+  createdAt          DateTime @default(now())
+
+  contrats           Contrat[]
+  ventes             Vente[]
+  primes             Prime[]
+  rolesHistorique    HistoriqueRole[]
+  transactions       TransactionGringotts[]
+  utilisateur        Utilisateur?
+
+  primesAttribuees   Prime[]  @relation("PrimeAttribuePar")
+}
+
+//
+// CONTRATS
+//
+
+model Contrat {
+  id               Int      @id @default(autoincrement())
+
+  employeId        Int
+  employe          Employe  @relation(fields: [employeId], references: [id])
+
+  typeContrat      String
+  dateDebut        DateTime
+  dateFin          DateTime?
+
+  salaire          Float?
+  pourcentagePrime Float?
+  commentaire      String?
+
+  estActif         Boolean @default(true)
+
+  createdAt        DateTime @default(now())
+}
+
+//
+// PRODUITS (STOCK / MENU)
+//
+
+model Produit {
+  id          Int     @id @default(autoincrement())
+
+  nom         String
+  categorie   CategorieProduit
+
+  stock       Int     @default(0)
+  description String?
+
+  prixAchat   Float
+  prixVente   Float
+
+  actif       Boolean @default(true)
+
+  ventes      VenteProduit[]
+}
+
+//
+// VENTES (COMMANDES)
+//
+
+model Vente {
+  id           Int      @id @default(autoincrement())
+
+  employeId    Int
+  employe      Employe  @relation(fields: [employeId], references: [id])
+
+  typeClient   String?
+
+  clientId     Int
+  client       Client   @relation(fields: [clientId], references: [id])
+
+  montantTotal Float     @default(0)
+
+  statut       StatutVente @default(en_cours)
+
+  dateVente    DateTime @default(now())
+
+  produits     VenteProduit[]
+  transactions TransactionGringotts[]
+}
+
+//
+// TABLE INTERMÉDIAIRE VENTE / PRODUITS
+//
+
+model VenteProduit {
+  id           Int    @id @default(autoincrement())
+
+  venteId      Int
+  vente        Vente  @relation(fields: [venteId], references: [id], onDelete: Cascade)
+
+  produitId    Int
+  produit      Produit @relation(fields: [produitId], references: [id])
+
+  quantite     Int
+  prixUnitaire Float
+  totalLigne   Float
+}
+
+//
+// GRINGOTTS (ÉCONOMIE ENTREPRISE)
+//
+
+model Gringotts {
+  id           Int      @id @default(autoincrement())
+
+  entrepriseId Int      @unique
+  entreprise   Entreprise @relation(fields: [entrepriseId], references: [id])
+
+  solde        Float    @default(0)
+
+  updatedAt    DateTime @updatedAt
+}
+
+//
+// TRANSACTIONS FINANCIÈRES
+//
+
+model TransactionGringotts {
+  id              Int      @id @default(autoincrement())
+
+  typeTransaction String?
+  montant         Float?
+  description     String?
+
+  employeId       Int?
+  employe         Employe? @relation(fields: [employeId], references: [id])
+
+  venteId         Int?
+  vente           Vente?   @relation(fields: [venteId], references: [id])
+
+  createdAt       DateTime @default(now())
+}
+
+//
+// PRIMES EMPLOYÉS
+//
+
+model Prime {
+  id            Int      @id @default(autoincrement())
+
+  employeId     Int
+  employe       Employe  @relation(fields: [employeId], references: [id])
+
+  semestre      Int
+  annee         Int
+
+  montant       Float
+  typePrime     String?
+  commentaire   String?
+
+  attribueParId Int?
+  attribuePar   Employe? @relation("PrimeAttribuePar", fields: [attribueParId], references: [id])
+
+  createdAt     DateTime @default(now())
+}
+
+//
+// HISTORIQUE DES RÔLES
+//
+
+model HistoriqueRole {
+  id              Int      @id @default(autoincrement())
+
+  employeId       Int
+  employe         Employe  @relation(fields: [employeId], references: [id])
+
+  ancienRole      String?
+  nouveauRole     String?
+
+  dateChangement  DateTime @default(now())
+}
