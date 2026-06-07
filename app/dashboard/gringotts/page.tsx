@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import CalculateurTaxe from "@/components/gringotts/CalculateurTaxe"; // <-- Importation ici
 
 export default async function GringottsPage() {
   const [gringotts, transactions] = await Promise.all([
@@ -24,7 +25,7 @@ export default async function GringottsPage() {
     .reduce((acc, t) => acc + (t.montant ?? 0), 0);
 
   const stats = [
-    { label: "Solde actuel",       value: `$${solde.toLocaleString("fr-FR")}`,        color: "text-white" },
+    { label: "Solde actuel",       value: `$${solde.toLocaleString("fr-FR")}`,       color: "text-white" },
     { label: "Revenus aujourd'hui", value: `+$${revenusJour.toFixed(0)}`,             color: "text-green-400" },
     { label: "Dépenses aujourd'hui",value: `-$${depensesJour.toFixed(0)}`,            color: "text-red-400" },
     { label: "Transactions",        value: transactions.length.toString(),             color: "text-white" },
@@ -54,12 +55,17 @@ export default async function GringottsPage() {
         ))}
       </div>
 
+      {/* LE CALCULATEUR EST PLACÉ ICI */}
+      <CalculateurTaxe />
+
       {/* Historique transactions */}
       <div className="bg-[#16162a] border border-white/10 rounded-xl overflow-hidden">
+        {/* ... Le reste de ton tableau existant reste inchangé ... */}
         <div className="px-5 py-4 border-b border-white/10">
           <p className="text-white/40 text-xs uppercase tracking-widest">Historique des transactions</p>
         </div>
         <table className="w-full text-sm">
+          {/* ... suite du tableau ... */}
           <thead>
             <tr className="border-b border-white/10">
               <th className="text-left px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Type</th>
@@ -95,7 +101,6 @@ export default async function GringottsPage() {
             ))}
           </tbody>
         </table>
-
         {transactions.length === 0 && (
           <div className="text-center py-16 text-white/30">
             Aucune transaction pour le moment.
