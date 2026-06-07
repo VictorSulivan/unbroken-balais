@@ -1,18 +1,41 @@
+// Exemple : app/dashboard/ventes/nouvelle/page.tsx
 import { prisma } from "@/lib/db/prisma";
-import NouvelleVenteForm from "@/components/ventes/NouvelleVenteForm";
+import NouvelleVenteForm from "@/components/ventes/NouvelleVenteForm"; // Ajuste le chemin
 
 export default async function NouvelleVentePage() {
-  const [clients, produits] = await Promise.all([
-    prisma.client.findMany({ orderBy: { nom: "asc" } }),
-    prisma.produit.findMany({ where: { actif: true, stock: { gt: 0 } }, orderBy: { nom: "asc" } }),
-  ]);
+  // 1. Récupère les données brutes depuis Prisma
+  const clientsRaw = await prisma.client.findMany({
+    orderBy: { nom: "asc" },
+  });
 
+  const produitsRaw = await prisma.produit.findMany({
+    orderBy: { nom: "asc" },
+    // Optionnel : ne prendre que les produits actifs pour la vente
+    where: { actif: true } 
+  });
+
+  // 2. Sérialise les types complexes (Prisma.Decimal -> number)
+  const produits = produitsRaw.map(p => ({
+    id: p.id,
+    nom: p.nom,
+    // .toNumber() convertit le Decimal de Prisma en un Number standard JS
+    prixVente: typeof p.prixVente === 'object' && p.prixVente !== null && 'toNumber' in p.prixVente
+      ? (p.prixVente as any).toNumber() 
+      : Number(p.prixVente),
+    stock: p.stock,
+    categorie: p.categorie
+  }));
+
+  const clients = clientsRaw.map(c => ({
+    id: c.id,
+    nom: c.nom,
+    prenom: c.prenom,
+  }));
+
+  // 3. Passe les données nettoyées au composant Client
   return (
-    <div className="max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-medium text-white">Nouvelle vente</h1>
-        <p className="text-white/40 text-sm mt-1">Créer une commande client</p>
-      </div>
+    <div className="p-6">
+      <h1 className="text-xl font-medium text-white mb-6">Nouvelle Vente</h1>
       <NouvelleVenteForm clients={clients} produits={produits} />
     </div>
   );
