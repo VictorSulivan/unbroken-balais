@@ -1,5 +1,9 @@
-import { auth } from "@/lib/auth/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth/auth.config"; // ON IMPORTE LA CONFIG LÉGÈRE ICI
 import { NextResponse } from "next/server";
+
+// On instancie un NextAuth ultra-léger exprès pour le middleware Edge
+const { auth } = NextAuth(authConfig);
 
 const PUBLIC_ROUTES = ["/login"];
 
