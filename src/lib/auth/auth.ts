@@ -31,10 +31,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!valid) return null;
 
         return {
-          id: user.id,
+          id: String(user.id),
           username: user.username,
           role: user.roleSite,
-          employeId: user.employeId,
+          employeId: String(user.employeId),
         };
       },
     }),
