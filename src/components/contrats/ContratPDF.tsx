@@ -34,7 +34,7 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       })
-      .from(ref.current)
+      .from(ref.current!)
       .save();
   }
 
