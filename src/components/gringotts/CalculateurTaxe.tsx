@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const TAXE = 30;
+const TAXE = 20;
 
 type Mode = "simulateur" | "versement" | "retrait";
 

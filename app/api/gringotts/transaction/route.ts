@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 
-const TAXE = 30;
+const TAXE = 20;
 
 export async function POST(req: Request) {
   const session = await auth();
