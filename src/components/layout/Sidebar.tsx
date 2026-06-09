@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-
+import Image from "next/image";
+import beerLogo from "./../../../public/beer.png";
 const NAV = [
   { href: "/dashboard",                 label: "Dashboard",  icon: "⬡" },
   { href: "/dashboard/ventes",          label: "Ventes",     icon: "💰" },
@@ -56,8 +57,12 @@ export default function Sidebar({ user }: Props) {
     <aside className="w-60 shrink-0 flex flex-col bg-[#16162a] border-r border-white/10 h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-        <div className="w-8 h-8 bg-[#2a2250] border border-[#3d3580] rounded-lg flex items-center justify-center text-[#a89af9] text-sm">
-          ⬡
+        <div className="w-8 h-8 bg-[#2a2250] border border-[#3d3580] rounded-lg flex items-center justify-center overflow-hidden">
+          <Image 
+            src={beerLogo} // On passe la variable importée, sans guillemets
+            alt="Logo Bière Comptabilité" 
+            className="w-6 h-6 object-contain" // Plus besoin de width/height fixes ici, Next les calcule automatiquement avec l'import direct
+          />
         </div>
         <div>
           <p className="text-white font-medium text-sm leading-none">GTA RP</p>

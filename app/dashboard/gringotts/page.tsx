@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import CalculateurTaxe from "@/components/gringotts/CalculateurTaxe";
+import Link from "next/link"; // 1. AJOUT DE L'IMPORT LINK
 
 const POSITIF = ["vente", "versement"];
 
@@ -8,7 +9,7 @@ export default async function GringottsPage() {
     prisma.gringotts.findFirst({ include: { entreprise: true } }),
     prisma.transactionGringotts.findMany({
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take: 20, // 2. LIMITÉ À 20 AU LIEU DE 50
       include: { employe: true, vente: { include: { client: true } } },
     }),
   ]);
@@ -30,7 +31,7 @@ export default async function GringottsPage() {
     { label: "Solde actuel",        value: `$${solde.toLocaleString("fr-FR")}`,    color: "text-white" },
     { label: "Revenus aujourd'hui", value: `+$${revenusJour.toFixed(0)}`,           color: "text-green-400" },
     { label: "Dépenses aujourd'hui",value: `-$${depensesJour.toFixed(0)}`,          color: "text-red-400" },
-    { label: "Transactions",        value: transactions.length.toString(),           color: "text-white" },
+    { label: "Transactions (Récentes)", value: transactions.length.toString(),      color: "text-white" },
   ];
 
   const typeBadge: Record<string, string> = {
@@ -62,8 +63,12 @@ export default async function GringottsPage() {
       <CalculateurTaxe />
 
       <div className="bg-[#16162a] border border-white/10 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/10">
-          <p className="text-white/40 text-xs uppercase tracking-widest">Historique des transactions</p>
+        <div className="px-5 py-4 border-b border-white/10 flex justify-between items-center">
+          <p className="text-white/40 text-xs uppercase tracking-widest">Dernières transactions</p>
+          {/* 3. AJOUT DU LIEN VERS L'HISTORIQUE EN HAUT DU TABLEAU */}
+          <Link href="/dashboard/gringotts/historique" className="text-xs text-[#a89af9] hover:underline">
+            Voir tout l'historique →
+          </Link>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -104,6 +109,15 @@ export default async function GringottsPage() {
         </table>
         {transactions.length === 0 && (
           <div className="text-center py-16 text-white/30">Aucune transaction pour le moment.</div>
+        )}
+        
+        {/* 4. BOUTON DE FIN DE TABLEAU POUR PLUS DE SÉCURITÉ UX */}
+        {transactions.length > 0 && (
+          <div className="p-4 border-t border-white/5 text-center bg-white/[0.01]">
+            <Link href="/dashboard/gringotts/historique" className="text-sm text-[#a89af9] hover:text-[#bcafff] transition-colors font-medium">
+              Afficher les transactions plus anciennes
+            </Link>
+          </div>
         )}
       </div>
     </div>
