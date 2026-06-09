@@ -24,27 +24,26 @@ export async function POST(req: Request) {
 
   const user = session.user as any;
   const body = await req.json();
-  const { clientId, lignes } = body;
-  // lignes = [{ produitId, quantite, prixUnitaire }]
+  const { clientId, lignes, extras } = body;
 
-  if (!clientId || !lignes?.length) {
+  if (!clientId || (!lignes?.length && !extras?.length)) {
     return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
   }
 
-  const montantTotal = lignes.reduce(
-    (acc: number, l: any) => acc + l.quantite * l.prixUnitaire,
-    0
+  const totalProduits = (lignes ?? []).reduce(
+    (acc: number, l: any) => acc + l.quantite * l.prixUnitaire, 0
   );
+  const totalExtras = (extras ?? []).reduce(
+    (acc: number, e: any) => acc + e.montant, 0
+  );
+  const montantTotal = totalProduits + totalExtras;
 
   const employe = await prisma.employe.findFirst({
     where: { utilisateur: { id: parseInt(user.id) } },
   });
-
   if (!employe) return NextResponse.json({ error: "Employé introuvable" }, { status: 400 });
 
-  // Transaction Prisma : tout ou rien
   const vente = await prisma.$transaction(async (tx) => {
-    // 1. Créer la vente
     const v = await tx.vente.create({
       data: {
         employeId: employe.id,
@@ -52,7 +51,7 @@ export async function POST(req: Request) {
         montantTotal,
         statut: "validee",
         produits: {
-          create: lignes.map((l: any) => ({
+          create: (lignes ?? []).map((l: any) => ({
             produitId: l.produitId,
             quantite: l.quantite,
             prixUnitaire: l.prixUnitaire,
@@ -62,25 +61,29 @@ export async function POST(req: Request) {
       },
     });
 
-    // 2. Diminuer le stock de chaque produit
-    for (const l of lignes) {
+    // Diminuer le stock
+    for (const l of lignes ?? []) {
       await tx.produit.update({
         where: { id: l.produitId },
         data: { stock: { decrement: l.quantite } },
       });
     }
 
-    // 3. Créditer Gringotts
+    // Créditer Gringotts
     await tx.gringotts.updateMany({
       data: { solde: { increment: montantTotal } },
     });
 
-    // 4. Créer la transaction financière
+    // Transaction financière
+    const extrasDesc = (extras ?? []).length > 0
+      ? ` + extras: ${(extras as any[]).map((e: any) => `${e.label} ($${e.montant})`).join(", ")}`
+      : "";
+
     await tx.transactionGringotts.create({
       data: {
         typeTransaction: "vente",
         montant: montantTotal,
-        description: `Vente #${v.id}`,
+        description: `Vente #${v.id}${extrasDesc}`,
         employeId: employe.id,
         venteId: v.id,
       },

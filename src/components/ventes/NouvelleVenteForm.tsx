@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 type Client = { id: number; nom: string; prenom: string | null };
 type Produit = { id: number; nom: string; prixVente: number; stock: number; categorie: string };
 type Ligne = { produitId: number; nom: string; quantite: number; prixUnitaire: number };
+type Extra = { label: string; montant: number };
 
 function NouveauClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (c: Client) => void }) {
   const [loading, setLoading] = useState(false);
@@ -70,6 +71,9 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [lignes, setLignes] = useState<Ligne[]>([]);
+  const [extras, setExtras] = useState<Extra[]>([]);
+  const [extraLabel, setExtraLabel] = useState("");
+  const [extraMontant, setExtraMontant] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -77,7 +81,9 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedClient = clients.find((c) => c.id === clientId);
-  const total = lignes.reduce((acc, l) => acc + l.quantite * l.prixUnitaire, 0);
+  const totalProduits = lignes.reduce((acc, l) => acc + l.quantite * l.prixUnitaire, 0);
+  const totalExtras = extras.reduce((acc, e) => acc + e.montant, 0);
+  const total = totalProduits + totalExtras;
 
   const filteredClients = useMemo(() => {
     if (!search.trim()) return clients.slice(0, 8);
@@ -113,11 +119,24 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
     setLignes((p) => p.map((l) => l.produitId === id ? { ...l, quantite: q } : l));
   }
 
+  function ajouterExtra() {
+    const montant = parseFloat(extraMontant);
+    if (!extraLabel.trim() || !montant || montant <= 0) return;
+    setExtras((p) => [...p, { label: extraLabel.trim(), montant }]);
+    setExtraLabel(""); setExtraMontant("");
+  }
+
   async function handleSubmit() {
     if (!clientId) return setError("Sélectionnez un client");
-    if (!lignes.length) return setError("Ajoutez au moins un produit");
+    if (!lignes.length && !extras.length) return setError("Ajoutez au moins un produit ou un extra");
     setLoading(true); setError("");
-    const res = await fetch("/api/ventes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId, lignes }) });
+
+    // On ajoute les extras comme lignes virtuelles dans la vente (montantTotal inclut tout)
+    const res = await fetch("/api/ventes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId, lignes, extras, montantTotal: total }),
+    });
     if (res.ok) { router.push("/dashboard/ventes"); router.refresh(); }
     else { const d = await res.json(); setError(d.error ?? "Erreur"); setLoading(false); }
   }
@@ -130,7 +149,6 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
         {/* CLIENT */}
         <div className="bg-[#16162a] border border-white/10 rounded-xl p-5">
           <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Client</p>
-
           {selectedClient ? (
             <div className="flex items-center justify-between bg-[#2a2250] border border-[#3d3580] rounded-xl px-4 py-3">
               <div className="flex items-center gap-3">
@@ -149,29 +167,20 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
             </div>
           ) : (
             <div ref={dropdownRef} className="relative">
-              {/* Input */}
               <div className={`flex items-center gap-3 bg-[#0f0f1a] border rounded-xl px-4 py-3 transition-all duration-150 ${open ? "border-[#a89af9]/60 ring-2 ring-[#a89af9]/10" : "border-white/10 hover:border-white/20"}`}>
                 <svg className={`w-4 h-4 shrink-0 transition-colors ${open ? "text-[#a89af9]" : "text-white/25"}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>
-                <input
-                  ref={inputRef}
-                  autoFocus
-                  value={search}
+                <input ref={inputRef} autoFocus value={search}
                   onChange={(e) => { setSearch(e.target.value); setOpen(true); }}
                   onFocus={() => setOpen(true)}
                   placeholder="Rechercher un client..."
-                  className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 outline-none min-w-0"
-                />
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 outline-none min-w-0" />
                 {search && (
                   <button onClick={() => { setSearch(""); inputRef.current?.focus(); }}
-                    className="w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/40 hover:text-white transition-colors text-[10px] shrink-0">
-                    ✕
-                  </button>
+                    className="w-5 h-5 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/40 hover:text-white transition-colors text-[10px] shrink-0">✕</button>
                 )}
               </div>
-
-              {/* Dropdown */}
               {open && (
                 <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1a1a2e] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-20">
                   {filteredClients.length > 0 ? (
@@ -191,7 +200,6 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
                       <p className="text-white/30 text-sm">Aucun résultat pour <span className="text-white/50">"{search}"</span></p>
                     </div>
                   )}
-                  {/* Footer dropdown */}
                   <div className="border-t border-white/5 p-2">
                     <button onMouseDown={() => { setOpen(false); setShowModal(true); }}
                       className="w-full flex items-center justify-center gap-2 text-sm text-[#a89af9] hover:bg-[#2a2250]/40 py-2 rounded-lg transition-colors">
@@ -237,8 +245,77 @@ export default function NouvelleVenteForm({ clients: initialClients, produits }:
           )}
         </div>
 
+        {/* EXTRAS */}
+        <div className="bg-[#16162a] border border-white/10 rounded-xl p-5">
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Extras</p>
+
+          {/* Ligne d'ajout */}
+          <div className="flex gap-2 mb-3">
+            <input
+              value={extraLabel}
+              onChange={(e) => setExtraLabel(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && ajouterExtra()}
+              placeholder="Description (ex: location salle)"
+              className="input-dark flex-1"
+            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
+              <input
+                type="number"
+                min={0}
+                value={extraMontant}
+                onChange={(e) => setExtraMontant(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && ajouterExtra()}
+                placeholder="0"
+                className="input-dark w-24 pl-7 text-right"
+              />
+            </div>
+            <button
+              onClick={ajouterExtra}
+              disabled={!extraLabel.trim() || !extraMontant}
+              className="px-4 bg-[#2a2250] hover:bg-[#342b6e] border border-[#3d3580] text-[#c4bbff] text-sm rounded-lg transition-colors disabled:opacity-30"
+            >
+              +
+            </button>
+          </div>
+
+          {/* Liste des extras */}
+          {extras.length > 0 ? (
+            <div className="space-y-2">
+              {extras.map((e, i) => (
+                <div key={i} className="flex items-center justify-between gap-3 px-3 py-2 bg-[#0f0f1a] rounded-lg border border-white/5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#a89af9] bg-[#2a2250] border border-[#3d3580] px-1.5 py-0.5 rounded">Extra</span>
+                    <span className="text-sm text-white/70">{e.label}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-white">${e.montant.toFixed(0)}</span>
+                    <button onClick={() => setExtras((p) => p.filter((_, j) => j !== i))}
+                      className="text-white/20 hover:text-red-400 text-xs transition-colors">✕</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-white/20 text-xs text-center py-3">Aucun extra — location, service, pourboire...</p>
+          )}
+        </div>
+
         {/* TOTAL */}
         <div className="bg-[#16162a] border border-white/10 rounded-xl p-5">
+          {/* Détail si extras */}
+          {extras.length > 0 && (
+            <div className="space-y-1.5 mb-4 pb-4 border-b border-white/10">
+              <div className="flex justify-between text-sm text-white/50">
+                <span>Produits</span>
+                <span>${totalProduits.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-white/50">
+                <span>Extras</span>
+                <span>${totalExtras.toFixed(0)}</span>
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-between mb-4">
             <span className="text-white/40 text-sm">Total</span>
             <span className="text-2xl font-medium text-white">${total.toFixed(0)}</span>
