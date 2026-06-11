@@ -19,28 +19,26 @@ export async function POST(req: Request) {
   });
 
   const isRetrait = type === "retrait";
-
-  // Versement = +montant, Retrait = -montant (brut)
-  const impact = isRetrait ? -montant : montant;
   const taxe = isRetrait ? Math.round(montant * TAXE / 100) : 0;
+  const netPoche = isRetrait ? montant - taxe : montant;
 
   await prisma.$transaction(async (tx) => {
-    // Mise à jour du solde
+    // Mise à jour du solde : décrément total (net + taxe = brut)
     await tx.gringotts.updateMany({
-      data: { solde: { increment: impact } },
+      data: { solde: { increment: isRetrait ? -montant : montant } },
     });
 
-    // Transaction principale
+    // Transaction 1 : ce qui va en poche (net) ou versement
     await tx.transactionGringotts.create({
       data: {
         typeTransaction: type,
-        montant,
+        montant: netPoche, // ← net uniquement, plus le brut
         description: description || (isRetrait ? "Retrait manuel" : "Versement manuel"),
         employeId: employe?.id ?? null,
       },
     });
 
-    // Taxe séparée uniquement sur retrait
+    // Transaction 2 : taxe séparée uniquement sur retrait
     if (isRetrait && taxe > 0) {
       await tx.transactionGringotts.create({
         data: {
