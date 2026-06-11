@@ -14,22 +14,17 @@ export default async function NouvelleVentePage() {
     where: { actif: true } 
   });
 
-  // 2. Sérialise les types complexes (Prisma.Decimal -> number)
+  // 2. Sérialise les types complexes (Prisma.Decimal ou Float selon le schéma -> number)
   const produits = produitsRaw.map(p => ({
-    id: p.id,
-    nom: p.nom,
-    // .toNumber() convertit le Decimal de Prisma en un Number standard JS
+    ...p, // On garde toutes les propriétés requises par le type Produit de Prisma
     prixVente: typeof p.prixVente === 'object' && p.prixVente !== null && 'toNumber' in p.prixVente
       ? (p.prixVente as any).toNumber() 
-      : Number(p.prixVente),
-    stock: p.stock,
-    categorie: p.categorie
+      : Number(p.prixVente)
   }));
 
+  // On passe tout l'objet client pour satisfaire le type Client de Prisma attendu par le formulaire
   const clients = clientsRaw.map(c => ({
-    id: c.id,
-    nom: c.nom,
-    prenom: c.prenom,
+    ...c
   }));
 
   // 3. Passe les données nettoyées au composant Client
