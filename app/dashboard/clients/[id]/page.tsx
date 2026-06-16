@@ -53,7 +53,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
       <div className="grid grid-cols-2 gap-4">
         {[
           { label: "Commandes",  value: totalVentes._count.toString() },
-          { label: "Total dépensé", value: `$${(totalVentes._sum.montantTotal ?? 0).toFixed(0)}` },
+          { label: "Total dépensé", value: `${(totalVentes._sum.montantTotal ?? 0).toFixed(0)}Mornilles` },
         ].map(({ label, value }) => (
           <div key={label} className="bg-[#16162a] border border-white/10 rounded-xl p-4">
             <p className="text-xl font-medium text-white">{value}</p>

@@ -71,7 +71,7 @@ export default async function EmployesPage() {
                   )}
                 </td>
                 <td className="px-5 py-4 text-right text-white/60">
-                  {e.salaire ? `$${e.salaire.toLocaleString()}` : "—"}
+                  {e.salaire ? `${e.salaire.toLocaleString()} Mornilles` : "—"}
                 </td>
                 <td className="px-5 py-4 text-right">
                   <span className={`text-xs px-2 py-1 rounded-full border ${

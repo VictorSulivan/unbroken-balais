@@ -67,7 +67,7 @@ export default async function EvenementPage({ params }: { params: Promise<{ id: 
         {[
           { label: "Clients", value: e.clients.length.toString() },
           { label: "Personnes", value: totalPersonnes.toString() },
-          { label: "Conso estimée", value: `$${totalConso.toFixed(0)}` },
+          { label: "Conso estimée", value: `${totalConso.toFixed(0)} Mornilles` },
         ].map(({ label, value }) => (
           <div key={label} className="bg-[#16162a] border border-white/10 rounded-xl p-4 text-center">
             <p className="text-xl font-medium text-white">{value}</p>
