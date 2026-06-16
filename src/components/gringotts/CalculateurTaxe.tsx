@@ -52,7 +52,7 @@ function Simulateur() {
       </div>
 
       <div>
-        <label className="block text-xs text-white/40 mb-1.5">Montant net désiré ($)</label>
+        <label className="block text-xs text-white/40 mb-1.5">Montant net désiré (Mornilles)</label>
         <input
           type="number"
           value={montant}
@@ -70,7 +70,7 @@ function Simulateur() {
           </div>
           <div className="bg-[#0f0f1a] border border-white/10 rounded-xl p-4">
             <p className="text-xs text-white/40 mb-1">Taxe Gringotts ({TAXE}%)</p>
-            <p className="text-2xl font-medium text-red-400">-${taxe.toLocaleString("fr-FR")}</p>
+            <p className="text-2xl font-medium text-red-400">-{taxe.toLocaleString("fr-FR")} Mornilles</p>
           </div>
         </div>
       )}
@@ -134,7 +134,7 @@ function Transaction({ type }: { type: "versement" | "retrait" }) {
 
       <div>
         <label className="block text-xs text-white/40 mb-1.5">
-          {isRetrait ? "Montant brut à retirer ($)" : "Montant à verser ($)"}
+          {isRetrait ? "Montant brut à retirer (Mornilles)" : "Montant à verser (Mornilles)"}
         </label>
         <input type="number" value={montant} onChange={(e) => setMontant(e.target.value)}
           placeholder="Ex: 5000" className="input-dark" />
@@ -144,11 +144,11 @@ function Transaction({ type }: { type: "versement" | "retrait" }) {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-[#0f0f1a] border border-white/10 rounded-xl p-3">
             <p className="text-xs text-white/40 mb-1">Taxe ({TAXE}%)</p>
-            <p className="text-lg font-medium text-red-400">-${taxe.toLocaleString("fr-FR")}</p>
+            <p className="text-lg font-medium text-red-400">-{taxe.toLocaleString("fr-FR")} Mornilles</p>
           </div>
           <div className="bg-[#0f0f1a] border border-white/10 rounded-xl p-3">
             <p className="text-xs text-white/40 mb-1">Net reçu</p>
-            <p className="text-lg font-medium text-green-400">${netRecu.toLocaleString("fr-FR")}</p>
+            <p className="text-lg font-medium text-green-400">{netRecu.toLocaleString("fr-FR")} Mornilles</p>
           </div>
         </div>
       )}

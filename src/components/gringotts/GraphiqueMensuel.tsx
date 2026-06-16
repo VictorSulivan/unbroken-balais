@@ -89,7 +89,7 @@ export function GraphiqueMensuel({ mois }: { mois: MoisStat[] }) {
                 stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
               <text x={PAD.left - 8} y={y + 4} textAnchor="end" fontSize="9"
                 fill="rgba(255,255,255,0.25)">
-                {v === 0 ? "0" : `$${fmt(v)}`}
+                {v === 0 ? "0" : `${fmt(v)} Mornilles`}
               </text>
             </g>
           ))}
@@ -109,11 +109,11 @@ export function GraphiqueMensuel({ mois }: { mois: MoisStat[] }) {
             <g key={`pt-${i}`}>
               <circle cx={xPos(i)} cy={yPos(m.gains)} r="3.5"
                 fill="#16162a" stroke="#4ade80" strokeWidth="1.5">
-                <title>{`${m.label} — Gains : $${fmt(m.gains)}`}</title>
+                <title>{`${m.label} — Gains : ${fmt(m.gains)} Mornilles`}</title>
               </circle>
               <circle cx={xPos(i)} cy={yPos(m.depenses + m.taxes)} r="3.5"
                 fill="#16162a" stroke="#f87171" strokeWidth="1.5">
-                <title>{`${m.label} — Charges : $${fmt(m.depenses + m.taxes)}`}</title>
+                <title>{`${m.label} — Charges : ${fmt(m.depenses + m.taxes)} Mornilles`}</title>
               </circle>
             </g>
           ))}

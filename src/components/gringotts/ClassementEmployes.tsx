@@ -63,13 +63,13 @@ export function ClassementEmployes({
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-green-400/40">
-                    +${fmt(sansEmploye.gains)}
+                    +{fmt(sansEmploye.gains)} Mornilles
                   </span>
                   <span className="text-red-400/40">
-                    -${fmt(sansEmploye.depenses + sansEmploye.taxes)}
+                    -{fmt(sansEmploye.depenses + sansEmploye.taxes)} Mornilles
                   </span>
                   <span className="text-white/25 tabular-nums w-20 text-right">
-                    ${fmt(sansEmploye.gains - sansEmploye.depenses - sansEmploye.taxes)}
+                    {fmt(sansEmploye.gains - sansEmploye.depenses - sansEmploye.taxes)} Mornilles
                   </span>
                 </div>
               </div>
@@ -114,17 +114,17 @@ function EmployeRow({
         {/* Stats inline */}
         <div className="flex items-center gap-4 text-xs shrink-0 ml-4">
           <span className="text-green-400/70 tabular-nums hidden sm:block">
-            +${fmt(gains)}
+            +{fmt(gains)} Mornilles
           </span>
           <span className="text-red-400/70 tabular-nums hidden sm:block">
-            -${fmt(depenses + taxes)}
+            -{fmt(depenses + taxes)} Mornilles
           </span>
           <span
             className={`font-semibold tabular-nums w-20 text-right ${
               net >= 0 ? "text-[#a89af9]" : "text-red-400"
             }`}
           >
-            {net >= 0 ? "+" : ""}${fmt(net)}
+            {net >= 0 ? "+" : ""} Mornilles {fmt(net)}
           </span>
         </div>
       </div>

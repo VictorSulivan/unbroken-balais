@@ -107,6 +107,7 @@ model Employe {
   rolesHistorique       HistoriqueRole[]
   transactions          TransactionGringotts[]
   utilisateur           Utilisateur?
+  restocks              Restock[]              
   primesAttribuees      Prime[]                @relation("PrimeAttribuePar")
   evenementsResponsable Evenement[]            @relation("EvenementResponsable")
   evenements            EvenementEmploye[]     @relation("EvenementEmployes")
@@ -137,6 +138,7 @@ model Produit {
   actif         Boolean                 @default(true)
   ventes        VenteProduit[]
   evenements    EvenementConsommation[] @relation("EvenementProduits")
+  restocks      RestockProduit[]       
 }
 
 model Vente {
@@ -254,4 +256,23 @@ model EvenementConsommation {
   produit      Produit   @relation("EvenementProduits", fields: [produitId], references: [id])
   quantite     Int
   prixUnitaire Float
+}
+
+model Restock {
+  id           Int              @id @default(autoincrement())
+  employeId    Int
+  employe      Employe          @relation(fields: [employeId], references: [id])
+  dateRestock  DateTime         @default(now())
+  valeurTotale Float            @default(0)
+  produits     RestockProduit[]
+}
+
+model RestockProduit {
+  id           Int      @id @default(autoincrement())
+  restockId    Int
+  restock      Restock  @relation(fields: [restockId], references: [id], onDelete: Cascade)
+  produitId    Int
+  produit      Produit  @relation(fields: [produitId], references: [id])
+  quantite     Int
+  prixAchatUnitaire Float
 }

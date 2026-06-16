@@ -24,73 +24,113 @@ export async function POST(req: Request) {
 
   const user = session.user as any;
   const body = await req.json();
-  const { clientId, lignes, extras } = body;
+  const { clientId, lignes, extras } = body; 
+  // lignes attendues : Array<{ produitId: number, quantite: number, prixEtudiant: boolean, prixEmploye: boolean }>
 
   if (!clientId || (!lignes?.length && !extras?.length)) {
     return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
   }
-
-  const totalProduits = (lignes ?? []).reduce(
-    (acc: number, l: any) => acc + l.quantite * l.prixUnitaire, 0
-  );
-  const totalExtras = (extras ?? []).reduce(
-    (acc: number, e: any) => acc + e.montant, 0
-  );
-  const montantTotal = totalProduits + totalExtras;
 
   const employe = await prisma.employe.findFirst({
     where: { utilisateur: { id: parseInt(user.id) } },
   });
   if (!employe) return NextResponse.json({ error: "Employé introuvable" }, { status: 400 });
 
-  const vente = await prisma.$transaction(async (tx) => {
-    const v = await tx.vente.create({
-      data: {
-        employeId: employe.id,
-        clientId: parseInt(clientId),
-        montantTotal,
-        statut: "validee",
-        produits: {
-          create: (lignes ?? []).map((l: any) => ({
-            produitId: l.produitId,
-            quantite: l.quantite,
-            prixUnitaire: l.prixUnitaire,
-            totalLigne: l.quantite * l.prixUnitaire,
-          })),
+  try {
+    const vente = await prisma.$transaction(async (tx) => {
+      let totalProduitsCalculs = 0;
+      const produitsCreatePayload = [];
+
+      for (const l of lignes ?? []) {
+        const produitBDD = await tx.produit.findUnique({
+          where: { id: l.produitId }
+        });
+
+        if (!produitBDD) {
+          throw new Error(`Produit #${l.produitId} introuvable en base.`);
+        }
+
+        // Conversion des champs Decimal de Prisma en Number
+        const prixVenteDeBase = typeof produitBDD.prixVente === 'object' && produitBDD.prixVente !== null && 'toNumber' in produitBDD.prixVente
+          ? (produitBDD.prixVente as any).toNumber()
+          : Number(produitBDD.prixVente);
+
+        const prixAchatDeBase = typeof produitBDD.prixAchat === 'object' && produitBDD.prixAchat !== null && 'toNumber' in produitBDD.prixAchat
+          ? (produitBDD.prixAchat as any).toNumber()
+          : Number(produitBDD.prixAchat);
+
+        // Détermination du prix final unitaire selon l'option choisie
+        let prixUnitaireFinal = prixVenteDeBase;
+        
+        if (l.prixEmploye) {
+          prixUnitaireFinal = prixAchatDeBase; // Prix d'achat direct
+        } else if (l.prixEtudiant) {
+          prixUnitaireFinal = Math.round((prixVenteDeBase * 0.84) * 100) / 100; // Tarif étudiant (-16%)
+        }
+
+        const totalLigne = l.quantite * prixUnitaireFinal;
+        totalProduitsCalculs += totalLigne;
+
+        produitsCreatePayload.push({
+          produitId: l.produitId,
+          quantite: l.quantite,
+          prixUnitaire: prixUnitaireFinal,
+          totalLigne: totalLigne,
+        });
+      }
+
+      const totalExtras = (extras ?? []).reduce(
+        (acc: number, e: any) => acc + e.montant, 0
+      );
+      
+      const montantTotal = totalProduitsCalculs + totalExtras;
+
+      // Création de l'enregistrement de vente
+      const v = await tx.vente.create({
+        data: {
+          employeId: employe.id,
+          clientId: parseInt(clientId),
+          montantTotal,
+          statut: "validee",
+          produits: {
+            create: produitsCreatePayload,
+          },
         },
-      },
-    });
-
-    // Diminuer le stock
-    for (const l of lignes ?? []) {
-      await tx.produit.update({
-        where: { id: l.produitId },
-        data: { stock: { decrement: l.quantite } },
       });
-    }
 
-    // Créditer Gringotts
-    await tx.gringotts.updateMany({
-      data: { solde: { increment: montantTotal } },
+      // Diminuer le stock
+      for (const l of lignes ?? []) {
+        await tx.produit.update({
+          where: { id: l.produitId },
+          data: { stock: { decrement: l.quantite } },
+        });
+      }
+
+      // Créditer Gringotts
+      await tx.gringotts.updateMany({
+        data: { solde: { increment: montantTotal } },
+      });
+
+      // Création du reçu comptable de l'opération
+      const extrasDesc = (extras ?? []).length > 0
+        ? ` + extras: ${(extras as any[]).map((e: any) => `${e.label} (${e.montant}) Mornilles`).join(", ")}`
+        : "";
+
+      await tx.transactionGringotts.create({
+        data: {
+          typeTransaction: "vente",
+          montant: montantTotal,
+          description: `Vente #${v.id}${extrasDesc} (Tarification ajustée)`,
+          employeId: employe.id,
+          venteId: v.id,
+        },
+      });
+
+      return v;
     });
 
-    // Transaction financière
-    const extrasDesc = (extras ?? []).length > 0
-      ? ` + extras: ${(extras as any[]).map((e: any) => `${e.label} ($${e.montant})`).join(", ")}`
-      : "";
-
-    await tx.transactionGringotts.create({
-      data: {
-        typeTransaction: "vente",
-        montant: montantTotal,
-        description: `Vente #${v.id}${extrasDesc}`,
-        employeId: employe.id,
-        venteId: v.id,
-      },
-    });
-
-    return v;
-  });
-
-  return NextResponse.json(vente, { status: 201 });
+    return NextResponse.json(vente, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Erreur lors de la transaction" }, { status: 500 });
+  }
 }

@@ -8,25 +8,25 @@ export function KpiGrid({ kpi }: { kpi: KpiData }) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <KpiCard
         label="Gains bruts"
-        value={`+$${fmt(kpi.gains)}`}
+        value={`+${fmt(kpi.gains)} Mornilles`}
         color="text-green-400"
         sub={`${kpi.nbTransactions} transactions`}
       />
       <KpiCard
         label="Dépenses"
-        value={`-$${fmt(kpi.depenses)}`}
+        value={`-${fmt(kpi.depenses)} Mornilles`}
         color="text-red-400"
         sub="hors taxe Gringotts"
       />
       <KpiCard
         label="Taxe Gringotts"
-        value={`-$${fmt(kpi.taxes)}`}
+        value={`-${fmt(kpi.taxes)} Mornilles`}
         color="text-orange-400"
         sub="prélevée sur retraits"
       />
       <KpiCard
         label="Solde net période"
-        value={`${kpi.net >= 0 ? "+" : ""}$${fmt(kpi.net)}`}
+        value={`${kpi.net >= 0 ? "+" : ""}${fmt(kpi.net)} Mornilles`}
         color={kpi.net >= 0 ? "text-[#a89af9]" : "text-red-400"}
         sub="gains − dépenses − taxes"
         highlight

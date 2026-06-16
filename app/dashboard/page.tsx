@@ -21,7 +21,7 @@ export default async function Dashboard() {
     ]);
 
   const stats = [
-    { label: "Solde Gringotts",    value: `$${soldeGringotts.toLocaleString()}`, icon: "🏦", alert: false },
+    { label: "Solde Gringotts",    value: `${soldeGringotts.toLocaleString()} Mornilles`, icon: "🏦", alert: false },
     { label: "Ventes aujourd'hui", value: ventesAujourdhui.toString(),           icon: "💰", alert: false },
     { label: "Employés actifs",    value: totalEmployes.toString(),               icon: "👷", alert: false },
     { label: "Stock critique",     value: stockCritique.toString(),               icon: "📦", alert: stockCritique > 0 },

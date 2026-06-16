@@ -58,8 +58,8 @@ export default async function EmployePage({ params }: { params: Promise<{ id: st
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Ventes réalisées", value: totalVentes._count.toString() },
-          { label: "CA généré",        value: `$${(totalVentes._sum.montantTotal ?? 0).toFixed(0)}` },
-          { label: "Salaire",          value: employe.salaire ? `$${employe.salaire.toLocaleString()}` : "—" },
+          { label: "CA généré",        value: `${(totalVentes._sum.montantTotal ?? 0).toFixed(0)} Mornilles` },
+          { label: "Salaire",          value: employe.salaire ? `${employe.salaire.toLocaleString()} Mornilles` : "—" },
         ].map(({ label, value }) => (
           <div key={label} className="bg-[#16162a] border border-white/10 rounded-xl p-4">
             <p className="text-xl font-medium text-white">{value}</p>

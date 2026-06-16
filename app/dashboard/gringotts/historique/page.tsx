@@ -61,7 +61,7 @@ export default async function HistoriqueGringottsPage({ searchParams }: PageProp
     <div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <Link href="/gringotts" className="text-xs text-white/40 hover:text-white transition-colors mb-2 inline-block">
+          <Link href="/dashboard/gringotts" className="text-xs text-white/40 hover:text-white transition-colors mb-2 inline-block">
             ← Retour aux finances
           </Link>
           <h1 className="text-2xl font-medium text-white">Historique complet</h1>
@@ -125,7 +125,7 @@ export default async function HistoriqueGringottsPage({ searchParams }: PageProp
           </button>
           {(currentType || currentEmployeId || currentSearch) && (
             <Link 
-              href="/gringotts/historique" 
+              href="/dashboard/gringotts/historique" 
               className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm rounded-lg text-center transition-colors"
             >
               Reset

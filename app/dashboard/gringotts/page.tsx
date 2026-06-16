@@ -28,9 +28,9 @@ export default async function GringottsPage() {
     .reduce((acc, t) => acc + (t.montant ?? 0), 0);
 
   const stats = [
-    { label: "Solde actuel",           value: `$${solde.toLocaleString("fr-FR")}`, color: "text-white" },
-    { label: "Revenus aujourd'hui",    value: `+$${revenusJour.toFixed(0)}`,        color: "text-green-400" },
-    { label: "Dépenses aujourd'hui",   value: `-$${depensesJour.toFixed(0)}`,       color: "text-red-400" },
+    { label: "Solde actuel",           value: `${solde.toLocaleString("fr-FR")} Mornilles`, color: "text-white" },
+    { label: "Revenus aujourd'hui",    value: `+${revenusJour.toFixed(0)} Mornilles`,        color: "text-green-400" },
+    { label: "Dépenses aujourd'hui",   value: `${depensesJour.toFixed(0)} Mornilles`,       color: "text-red-400" },
     { label: "Transactions (Récentes)",value: transactions.length.toString(),       color: "text-white" },
   ];
 
