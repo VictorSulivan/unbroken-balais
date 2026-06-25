@@ -5,7 +5,7 @@ async function main() {
   const entreprise = await prisma.entreprise.upsert({
     where: { id: 1 },
     update: {},
-    create: { nom: "Les 3 Balais" },
+    create: { nom: "Zonko" },
   });
 
   // Gringotts
@@ -16,6 +16,7 @@ async function main() {
   });
 
   // Produits
+  /*
   await prisma.produit.createMany({
     skipDuplicates: true,
     data: [
@@ -26,9 +27,10 @@ async function main() {
       { nom: "Bière Maze Bank", categorie: "boisson", stock: 4, prixAchat: 2, prixVente: 8 },
       { nom: "Eau", categorie: "boisson", stock: 200, prixAchat: 0.5, prixVente: 3 },
     ],
-  });
+  });*/
 
   // Clients
+  /*
   await prisma.client.createMany({
     skipDuplicates: true,
     data: [
@@ -36,7 +38,7 @@ async function main() {
       { nom: "Johnson", prenom: "Michael", typeClient: "particulier", entrepriseId: entreprise.id },
       { nom: "Franklin", prenom: "Clinton", typeClient: "particulier", entrepriseId: entreprise.id },
     ],
-  });
+  });*/
 
   console.log("✅ Seed terminé");
 }

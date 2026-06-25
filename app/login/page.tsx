@@ -25,7 +25,7 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-3 mb-8">
           <div>
-            <p className="text-white font-medium text-base leading-tight">Les 3 balais</p>
+            <p className="text-white font-medium text-base leading-tight">Zonko</p>
             <p className="text-white/40 text-xs">Espace administration</p>
           </div>
         </div>
