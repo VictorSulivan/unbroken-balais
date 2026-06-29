@@ -7,7 +7,6 @@ import Link from "next/link";
 interface Produit {
   id: number;
   nom: string;
-  categorie: string;
   stock: number;
   prixAchat: number;
 }
@@ -115,7 +114,7 @@ export default function NouveauRestockForm({ produits }: { produits: Produit[] }
                   <option value="" className="bg-[#16162a]">Choisir un produit...</option>
                   {produits.map((p) => (
                     <option key={p.id} value={p.id} className="bg-[#16162a]">
-                      {p.nom} ({p.categorie === "plat" ? "Plat" : "Boisson"}) — Stock : {p.stock}
+                      {p.nom} — Stock actuel : {p.stock}
                     </option>
                   ))}
                 </select>

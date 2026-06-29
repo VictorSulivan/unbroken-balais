@@ -20,12 +20,12 @@ async function main() {
   await prisma.produit.createMany({
     skipDuplicates: true,
     data: [
-      { nom: "Burger Los Santos", categorie: "plat", stock: 50, prixAchat: 5, prixVente: 15 },
-      { nom: "Hot Dog Vinewood", categorie: "plat", stock: 30, prixAchat: 3, prixVente: 10 },
-      { nom: "Pizza Grove Street", categorie: "plat", stock: 3, prixAchat: 8, prixVente: 20 },
-      { nom: "Cola", categorie: "boisson", stock: 100, prixAchat: 1, prixVente: 5 },
-      { nom: "Bière Maze Bank", categorie: "boisson", stock: 4, prixAchat: 2, prixVente: 8 },
-      { nom: "Eau", categorie: "boisson", stock: 200, prixAchat: 0.5, prixVente: 3 },
+      { nom: "Burger Los Santos", stock: 50, prixAchat: 5, prixVente: 15 },
+      { nom: "Hot Dog Vinewood", stock: 30, prixAchat: 3, prixVente: 10 },
+      { nom: "Pizza Grove Street", stock: 3, prixAchat: 8, prixVente: 20 },
+      { nom: "Cola", stock: 100, prixAchat: 1, prixVente: 5 },
+      { nom: "Bière Maze Bank", stock: 4, prixAchat: 2, prixVente: 8 },
+      { nom: "Eau", stock: 200, prixAchat: 0.5, prixVente: 3 },
     ],
   });*/
 

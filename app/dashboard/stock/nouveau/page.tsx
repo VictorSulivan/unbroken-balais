@@ -8,7 +8,7 @@ export default function NouveauProduit() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    nom: "", categorie: "plat", stock: 0,
+    nom: "", stock: 0,
     prixAchat: 0, prixVente: 0, description: "",
   });
 
@@ -49,28 +49,6 @@ export default function NouveauProduit() {
             onChange={(e) => set("nom", e.target.value)}
             className="input-dark"
           />
-        </Field>
-
-        <Field label="Catégorie">
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { value: "plat",    label: "🍽️  Plat" },
-              { value: "boisson", label: "🥤  Boisson" },
-            ].map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => set("categorie", value)}
-                className={`py-2.5 rounded-lg text-sm font-medium border transition-colors ${
-                  form.categorie === value
-                    ? "bg-[#2a2250] border-[#3d3580] text-[#c4bbff]"
-                    : "bg-[#0f0f1a] border-white/10 text-white/40 hover:text-white hover:border-white/20"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
         </Field>
 
         <Field label="Stock initial">

@@ -51,7 +51,6 @@ export default async function StockPage() {
             <thead>
               <tr className="border-b border-white/10">
                 <th className="text-left px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Produit</th>
-                <th className="text-left px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Catégorie</th>
                 <th className="text-right px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Stock</th>
                 <th className="text-right px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Prix achat</th>
                 <th className="text-right px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Prix vente</th>
@@ -63,15 +62,6 @@ export default async function StockPage() {
               {produits.map((p) => (
                 <tr key={p.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                   <td className="px-5 py-4 text-white font-medium">{p.nom}</td>
-                  <td className="px-5 py-4">
-                    <span className={`text-xs px-2 py-1 rounded-full border ${
-                      p.categorie === "plat"
-                        ? "bg-[#1a2a1a] text-green-400 border-green-500/30"
-                        : "bg-[#1a1a2a] text-blue-400 border-blue-500/30"
-                    }`}>
-                      {p.categorie}
-                    </span>
-                  </td>
                   <td className="px-5 py-4 text-right">
                     <span className={`font-medium ${p.stock <= 5 ? "text-orange-400" : "text-white"}`}>
                       {p.stock}
@@ -110,7 +100,7 @@ export default async function StockPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-medium text-white">Derniers Réapprovisionnements</h2>
-            <p className="text-white/40 text-xs mt-0.5">Aperçu des 5 dernièr restock</p>
+            <p className="text-white/40 text-xs mt-0.5">Aperçu des 5 derniers restocks</p>
           </div>
           <Link 
             href="/dashboard/stock/historique" 
