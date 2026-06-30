@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import Link from "next/link";
 import StockActions from "@/components/stock/StockActions";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function StockPage() {
   // 1. Récupération parallèle des produits et des 5 derniers restocks
@@ -129,9 +130,7 @@ export default async function StockPage() {
                 <div key={r.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/1 transition-colors">
                   <div>
                     <div className="text-xs text-white/40">
-                      {new Date(r.dateRestock).toLocaleDateString("fr-FR", {
-                        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
-                      })}
+                      {fmtDate(r.dateRestock, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                       {" · par "}
                       <span className="text-[#c4bbff] font-medium">{r.employe.prenom} {r.employe.nom}</span>
                     </div>

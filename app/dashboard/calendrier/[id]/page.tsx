@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import EvenementActions from "@/components/calendrier/EvenementActions";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function EvenementPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -52,8 +53,8 @@ export default async function EvenementPage({ params }: { params: Promise<{ id: 
               <span className={`text-xs px-2 py-1 rounded-full border ${statutColor[e.statut]}`}>{e.statut.replace("_", " ")}</span>
             </div>
             <div className="text-white/50 text-sm">
-              📅 {new Date(e.dateDebut).toLocaleDateString("fr-FR", { weekday: "long", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-              {e.dateFin && <> → {new Date(e.dateFin).toLocaleDateString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</>}
+              📅 {fmtDate(e.dateDebut, { weekday: "long", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+              {e.dateFin && <> → {fmtDate(e.dateFin, { hour: "2-digit", minute: "2-digit" })}</>}
             </div>
           </div>
           <EvenementActions id={e.id} statut={e.statut} />

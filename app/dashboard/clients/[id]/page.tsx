@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import ClientEditForm from "@/components/clients/ClientEditForm";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function ClientPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -88,7 +89,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                 <div className="text-right shrink-0">
                   <p className="text-white font-medium text-sm">${v.montantTotal.toFixed(0)}</p>
                   <p className="text-white/30 text-xs">
-                    {new Date(v.dateVente).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
+                    {fmtDate(v.dateVente, { day: "2-digit", month: "short" })}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import CalculateurTaxe from "@/components/gringotts/CalculateurTaxe";
 import Link from "next/link";
+import { fmtDate } from "@/utils/formatDate";
 
 const POSITIF = ["vente", "versement"];
 
@@ -120,9 +121,7 @@ export default async function GringottsPage() {
                     {isPositif ? "+" : "-"}${t.montant?.toFixed(0) ?? "0"}
                   </td>
                   <td className="px-5 py-4 text-right text-white/40 text-xs">
-                    {new Date(t.createdAt).toLocaleDateString("fr-FR", {
-                      day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
-                    })}
+                    {fmtDate(t.createdAt, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                   </td>
                 </tr>
               );

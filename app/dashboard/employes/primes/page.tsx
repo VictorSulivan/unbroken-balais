@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import NouvelleprimeForm from "@/components/employes/NouvellePrimeForm";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function PrimesPage() {
   const [primes, employes] = await Promise.all([
@@ -51,7 +52,7 @@ export default async function PrimesPage() {
                 <div className="text-right shrink-0">
                   <p className="text-orange-400 font-medium text-sm">+${p.montant.toFixed(0)}</p>
                   <p className="text-white/20 text-xs">
-                    {new Date(p.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
+                    {fmtDate(p.createdAt, { day: "2-digit", month: "short" })}
                   </p>
                 </div>
               </div>

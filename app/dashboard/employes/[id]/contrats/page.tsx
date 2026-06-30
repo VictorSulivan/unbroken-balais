@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import NouveauContratForm from "@/components/employes/NouveauContratForm";
 import ContratActions from "@/components/employes/ContratActions";
 import Link from "next/link";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function ContratsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -59,8 +60,8 @@ export default async function ContratsPage({ params }: { params: Promise<{ id: s
                     </div>
                     <div className="flex items-center gap-3 text-xs text-white/40">
                       <span>
-                        {new Date(c.dateDebut).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
-                        {c.dateFin && ` → ${new Date(c.dateFin).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}`}
+                        {fmtDate(c.dateDebut, { day: "2-digit", month: "short", year: "numeric" })}
+                        {c.dateFin && ` → ${fmtDate(c.dateFin, { day: "2-digit", month: "short", year: "numeric" })}`}
                       </span>
                     </div>
                     <div className="flex items-center gap-4 text-sm">

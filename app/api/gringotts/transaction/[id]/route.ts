@@ -47,3 +47,26 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+
+  const { id } = await params;
+  const numId = parseInt(id, 10);
+  if (isNaN(numId)) return NextResponse.json({ error: "ID invalide" }, { status: 400 });
+
+  const existing = await prisma.transactionGringotts.findUnique({ where: { id: numId } });
+  if (!existing) return NextResponse.json({ error: "Transaction introuvable" }, { status: 404 });
+
+  const impact = getSign(existing.typeTransaction) * (existing.montant ?? 0);
+
+  await prisma.$transaction([
+    prisma.gringotts.updateMany({
+      data: { solde: { increment: -impact } },
+    }),
+    prisma.transactionGringotts.delete({ where: { id: numId } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
+}
