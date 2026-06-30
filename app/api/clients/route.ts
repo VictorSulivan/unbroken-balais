@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
   let entrepriseClienteId: number | undefined;
   if (typeClient === "entreprise" && entrepriseClienteNom) {
-    const ec = await prisma.entrepriseCliente.upsert({
+    await prisma.entrepriseCliente.upsert({
       where: { id: 0 },
       update: {},
       create: { nom: entrepriseClienteNom },

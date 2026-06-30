@@ -91,7 +91,7 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
               Article 1 — Objet du contrat
             </div>
             <div style={{ fontSize: "12px", lineHeight: "1.8", color: "#333" }}>
-              La société <strong>{entreprise}</strong> engage <strong>{employe.prenom} {employe.nom}</strong> en qualité de <strong>{employe.role.replace("_", " ")}</strong>, dans le cadre d'un contrat de type <strong>{contrat.typeContrat}</strong>, conformément aux dispositions du présent document.
+              La société <strong>{entreprise}</strong> engage <strong>{employe.prenom} {employe.nom}</strong> en qualité de <strong>{employe.role.replace("_", " ")}</strong>, dans le cadre d&apos;un contrat de type <strong>{contrat.typeContrat}</strong>, conformément aux dispositions du présent document.
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
             </div>
             <div style={{ fontSize: "12px", lineHeight: "1.8", color: "#333" }}>
               {contrat.salaire
-                ? <>L'employé percevra un salaire de <strong>{contrat.salaire.toLocaleString()} Mornilles</strong> la demi heure.</>
+                ? <>L&apos;employé percevra un salaire de <strong>{contrat.salaire.toLocaleString()} Mornilles</strong> la demi heure.</>
                 : <>La rémunération sera définie par accord entre les parties.</>
               }
               <br/>
@@ -145,11 +145,11 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "40px" }}>
               <div style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: "11px", color: "#888", marginBottom: "48px" }}>Signature de l'employeur</div>
+                <div style={{ fontSize: "11px", color: "#888", marginBottom: "48px" }}>Signature de l&apos;employeur</div>
                 <div style={{ borderTop: "1px solid #333", paddingTop: "8px", fontSize: "12px", fontWeight: "bold" }}>{entreprise}</div>
               </div>
               <div style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: "11px", color: "#888", marginBottom: "48px" }}>Signature de l'employé</div>
+                <div style={{ fontSize: "11px", color: "#888", marginBottom: "48px" }}>Signature de l&apos;employé</div>
                 <div style={{ borderTop: "1px solid #333", paddingTop: "8px", fontSize: "12px", fontWeight: "bold" }}>{employe.prenom} {employe.nom}</div>
               </div>
             </div>

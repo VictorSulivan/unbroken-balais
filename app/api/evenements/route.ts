@@ -45,14 +45,14 @@ export async function POST(req: Request) {
         create: (employeIds ?? []).map((id: number) => ({ employeId: id })),
       },
       clients: {
-        create: (clientIds ?? []).map((c: any) => ({
+        create: (clientIds ?? []).map((c: { clientId: number; nbPersonnes?: number; commentaire?: string }) => ({
           clientId: c.clientId,
           nbPersonnes: c.nbPersonnes ?? 1,
           commentaire: c.commentaire ?? null,
         })),
       },
       consommations: {
-        create: (consommations ?? []).map((c: any) => ({
+        create: (consommations ?? []).map((c: { produitId: number; quantite: number; prixUnitaire: number }) => ({
           produitId: c.produitId,
           quantite: c.quantite,
           prixUnitaire: c.prixUnitaire,

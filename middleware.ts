@@ -21,7 +21,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const userRole = (req.auth.user as any)?.role as string;
+  const userRole = req.auth.user?.role ?? "";
 
   for (const [route, roles] of Object.entries(ROLE_ROUTES)) {
     if (pathname.startsWith(route) && !roles.includes(userRole)) {

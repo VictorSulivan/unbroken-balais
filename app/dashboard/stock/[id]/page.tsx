@@ -7,14 +7,21 @@ export default function EditProduit() {
   const { id } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<any>(null);
+  interface ProduitForm {
+    nom: string;
+    stock: number;
+    prixAchat: number;
+    prixVente: number;
+    description: string | null;
+  }
+  const [form, setForm] = useState<ProduitForm | null>(null);
 
   useEffect(() => {
     fetch(`/api/produits/${id}`).then((r) => r.json()).then(setForm);
   }, [id]);
 
-  function set(key: string, val: string | number | boolean) {
-    setForm((f: any) => ({ ...f, [key]: val }));
+  function set(key: keyof ProduitForm, val: string | number | boolean) {
+    setForm((f) => f ? ({ ...f, [key]: val }) : f);
   }
 
   async function handleSave() {

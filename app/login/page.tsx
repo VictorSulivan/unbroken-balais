@@ -32,7 +32,7 @@ export default function LoginPage() {
 
         {/* Username */}
         <div className="mb-4">
-          <label className="block text-xs text-white/50 mb-1.5">Nom d'utilisateur</label>
+          <label className="block text-xs text-white/50 mb-1.5">Nom d&apos;utilisateur</label>
           <input
             type="text"
             placeholder="ex: johndoe"

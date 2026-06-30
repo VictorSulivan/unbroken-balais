@@ -12,10 +12,10 @@ export default async function RestockPage() {
   const produits = produitsRaw.map((p) => ({
     ...p,
     prixAchat: typeof p.prixAchat === "object" && p.prixAchat !== null && "toNumber" in p.prixAchat
-      ? (p.prixAchat as any).toNumber()
+      ? (p.prixAchat as { toNumber: () => number }).toNumber()
       : Number(p.prixAchat),
     prixVente: typeof p.prixVente === "object" && p.prixVente !== null && "toNumber" in p.prixVente
-      ? (p.prixVente as any).toNumber()
+      ? (p.prixVente as { toNumber: () => number }).toNumber()
       : Number(p.prixVente),
   }));
 

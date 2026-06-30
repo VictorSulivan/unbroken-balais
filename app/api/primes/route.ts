@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as any;
+  const user = session.user;
   const body = await req.json();
   const { employeId, montant, typePrime, commentaire, semestre, annee } = body;
 

@@ -10,7 +10,6 @@ export default function FormClients({
   onSelectClient,
   onRemoveClient,
   onOpenModal,
-  onUpdateNbPersonnes, // <-- Ajouté ici pour éviter l'erreur TS
 }: {
   clients: Client[];
   selectedClients: { clientId: number; nbPersonnes?: number; commentaire?: string }[];
@@ -115,7 +114,7 @@ export default function FormClients({
                 </div>
               ) : (
                 <div className="px-4 py-5 text-center">
-                  <p className="text-white/30 text-sm">Aucun résultat pour <span className="text-white/50">"{search}"</span></p>
+                  <p className="text-white/30 text-sm">Aucun résultat pour <span className="text-white/50">&quot;{search}&quot;</span></p>
                 </div>
               )}
               <div className="border-t border-white/5 p-2">

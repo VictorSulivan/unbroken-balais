@@ -1,7 +1,15 @@
 "use client";
 
 // --- 2. COMPOSANT : INFORMATIONS DE BASE ---
-export default function FormInformations({ form, onChange }: { form: any; onChange: (key: string, val: string) => void }) {
+interface EvenementForm {
+  type: string;
+  titre: string;
+  dateDebut: string;
+  dateFin: string;
+  description: string;
+}
+
+export default function FormInformations({ form, onChange }: { form: EvenementForm; onChange: (key: string, val: string) => void }) {
   return (
     <div className="bg-[#16162a] border border-white/10 rounded-xl p-5 space-y-4">
       <p className="text-xs text-white/40 uppercase tracking-widest">Informations</p>

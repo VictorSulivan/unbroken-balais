@@ -18,7 +18,7 @@ export default async function NouvelleVentePage() {
   const produits = produitsRaw.map(p => ({
     ...p, // On garde toutes les propriétés requises par le type Produit de Prisma
     prixVente: typeof p.prixVente === 'object' && p.prixVente !== null && 'toNumber' in p.prixVente
-      ? (p.prixVente as any).toNumber() 
+      ? (p.prixVente as { toNumber: () => number }).toNumber()
       : Number(p.prixVente)
   }));
 

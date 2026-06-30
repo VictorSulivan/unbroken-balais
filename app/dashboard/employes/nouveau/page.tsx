@@ -46,7 +46,7 @@ export default function NouvelEmploye() {
     <div className="max-w-lg">
       <div className="mb-8">
         <h1 className="text-2xl font-medium text-white">Nouvel employé</h1>
-        <p className="text-white/40 text-sm mt-1">Ajouter un membre à l'équipe</p>
+        <p className="text-white/40 text-sm mt-1">Ajouter un membre à l&apos;équipe</p>
       </div>
 
       <div className="space-y-5">
@@ -66,7 +66,7 @@ export default function NouvelEmploye() {
           </div>
 
           <div>
-            <label className="block text-xs text-white/40 mb-1.5">Rôle dans l'entreprise</label>
+            <label className="block text-xs text-white/40 mb-1.5">Rôle dans l&apos;entreprise</label>
             <div className="grid grid-cols-2 gap-2">
               {ROLES_EMPLOYE.map((r) => (
                 <button key={r} type="button" onClick={() => set("role", r)}
@@ -87,7 +87,7 @@ export default function NouvelEmploye() {
               <input type="number" value={form.salaire} onChange={(e) => set("salaire", e.target.value)} className="input-dark" placeholder="5000" />
             </div>
             <div>
-              <label className="block text-xs text-white/40 mb-1.5">Date d'embauche</label>
+              <label className="block text-xs text-white/40 mb-1.5">Date d&apos;embauche</label>
               <input type="date" value={form.dateEmbauche} onChange={(e) => set("dateEmbauche", e.target.value)} className="input-dark" />
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function NouvelEmploye() {
           {avecCompte && (
             <>
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">Nom d'utilisateur</label>
+                <label className="block text-xs text-white/40 mb-1.5">Nom d&apos;utilisateur</label>
                 <input value={form.username} onChange={(e) => set("username", e.target.value)} className="input-dark" placeholder="trevor_p" />
               </div>
               <div>
