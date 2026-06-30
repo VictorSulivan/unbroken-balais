@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const TYPES = ["manuel", "performance", "anciennete", "exceptionnel"];
+const TAXE = 20;
 
 export default function NouvelleprimeForm({ employes }: { employes: { id: number; prenom: string; nom: string }[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [netSouhaite, setNetSouhaite] = useState("");
   const now = new Date();
   const [form, setForm] = useState({
     employeId: "",
@@ -83,12 +85,66 @@ export default function NouvelleprimeForm({ employes }: { employes: { id: number
         </div>
       </div>
 
+      {/* Simulateur net → brut */}
+      <div className="bg-[#0f0f1a] border border-white/10 rounded-xl p-4 space-y-3">
+        <p className="text-xs text-white/40 uppercase tracking-widest">Simulateur</p>
+        <div>
+          <label className="block text-xs text-white/40 mb-1.5">Montant net souhaité par l&apos;employé</label>
+          <input
+            type="number"
+            min={0}
+            value={netSouhaite}
+            onChange={(e) => setNetSouhaite(e.target.value)}
+            className="input-dark"
+            placeholder="Ex: 800"
+          />
+        </div>
+        {(() => {
+          const net = parseFloat(netSouhaite) || 0;
+          if (net <= 0) return null;
+          const brut = Math.ceil(net / (1 - TAXE / 100));
+          const taxe = brut - net;
+          return (
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="bg-[#16162a] border border-white/10 rounded-lg p-3">
+                  <p className="text-xs text-white/40 mb-0.5">Brut à saisir</p>
+                  <p className="text-white font-medium">{brut.toLocaleString("fr-FR")} Mornilles</p>
+                </div>
+                <div className="bg-[#16162a] border border-white/10 rounded-lg p-3">
+                  <p className="text-xs text-white/40 mb-0.5">Taxe Gringotts ({TAXE}%)</p>
+                  <p className="text-orange-400 font-medium">{taxe.toLocaleString("fr-FR")} Mornilles</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { set("montant", brut.toString()); setNetSouhaite(""); }}
+                className="w-full py-1.5 text-xs text-[#a89af9] border border-[#3d3580] hover:bg-[#2a2250] rounded-lg transition-colors"
+              >
+                Utiliser {brut.toLocaleString("fr-FR")} comme montant brut
+              </button>
+            </div>
+          );
+        })()}
+      </div>
+
       {/* Montant */}
       <div>
-        <label className="block text-xs text-white/40 mb-1.5">Montant (mornilles)</label>
+        <label className="block text-xs text-white/40 mb-1.5">Montant brut (mornilles)</label>
         <input type="number" min={0} value={form.montant}
           onChange={(e) => set("montant", e.target.value)}
           className="input-dark" placeholder="1000" />
+        {(() => {
+          const brut = parseFloat(form.montant) || 0;
+          if (brut <= 0) return null;
+          const taxe = Math.round(brut * TAXE / 100);
+          const net = brut - taxe;
+          return (
+            <p className="text-xs text-white/30 mt-1.5">
+              → Employé reçoit <span className="text-white/60">{net.toLocaleString("fr-FR")}</span> · Taxe <span className="text-orange-400/70">{taxe.toLocaleString("fr-FR")}</span>
+            </p>
+          );
+        })()}
       </div>
 
       {/* Semestre / Année */}

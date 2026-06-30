@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import Link from "next/link";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function VentesPage() {
   const ventes = await prisma.vente.findMany({
@@ -50,9 +51,7 @@ export default async function VentesPage() {
                 </td>
                 <td className="px-5 py-4 text-right text-white font-medium">${v.montantTotal.toFixed(0)}</td>
                 <td className="px-5 py-4 text-right text-white/40 text-xs">
-                  {new Date(v.dateVente).toLocaleDateString("fr-FR", {
-                    day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
-                  })}
+                  {fmtDate(v.dateVente, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                 </td>
               </tr>
             ))}

@@ -16,6 +16,8 @@ export async function GET() {
   return NextResponse.json(primes);
 }
 
+const TAXE = 20;
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -28,6 +30,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
+  const montantBrut = parseFloat(montant);
+  const taxe = Math.round(montantBrut * TAXE / 100);
+  const netPrime = montantBrut - taxe;
+
   const attribueur = await prisma.employe.findFirst({
     where: { utilisateur: { id: parseInt(user.id) } },
   });
@@ -36,7 +42,7 @@ export async function POST(req: Request) {
     const p = await tx.prime.create({
       data: {
         employeId: parseInt(employeId),
-        montant: parseFloat(montant),
+        montant: netPrime,
         typePrime: typePrime ?? "manuel",
         commentaire,
         semestre: parseInt(semestre),
@@ -45,17 +51,27 @@ export async function POST(req: Request) {
       },
     });
 
-    // Débiter Gringotts
+    // Débiter Gringotts du brut entier
     await tx.gringotts.updateMany({
-      data: { solde: { decrement: parseFloat(montant) } },
+      data: { solde: { decrement: montantBrut } },
     });
 
-    // Transaction financière
+    // Transaction : prime nette versée à l'employé
     await tx.transactionGringotts.create({
       data: {
         typeTransaction: "prime",
-        montant: parseFloat(montant),
+        montant: netPrime,
         description: `Prime S${semestre}/${annee} — employé #${employeId}`,
+        employeId: attribueur?.id ?? null,
+      },
+    });
+
+    // Transaction : taxe Gringotts 20% sur la prime
+    await tx.transactionGringotts.create({
+      data: {
+        typeTransaction: "taxe",
+        montant: taxe,
+        description: `Taxe Gringotts ${TAXE}% sur prime S${semestre}/${annee}`,
         employeId: attribueur?.id ?? null,
       },
     });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { fmtDate } from "@/utils/formatDate";
 
 type Props = {
   employe: {
@@ -39,7 +40,7 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
   }
 
   const fmt = (d: string) =>
-    new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+    fmtDate(d, { day: "2-digit", month: "long", year: "numeric" });
 
   return (
     <div>
@@ -141,7 +142,7 @@ export default function ContratPDF({ employe, contrat, entreprise }: Props) {
           {/* Signatures */}
           <div style={{ marginTop: "48px", paddingTop: "24px", borderTop: "1px solid #eee" }}>
             <div style={{ fontSize: "11px", color: "#888", textAlign: "center", marginBottom: "32px" }}>
-              Fait à Pré au lard, le {new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
+              Fait à Pré au lard, le {fmtDate(new Date(), { day: "2-digit", month: "long", year: "numeric" })}
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "40px" }}>
               <div style={{ flex: 1, textAlign: "center" }}>

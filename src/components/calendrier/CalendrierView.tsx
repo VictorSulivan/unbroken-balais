@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { fmtDate } from "@/utils/formatDate";
 
 type Evenement = {
   id: number;
@@ -131,8 +132,8 @@ export default function CalendrierView({ evenements }: { evenements: Evenement[]
             </div>
 
             <div className="space-y-1 text-xs text-white/50">
-              <div>📅 {new Date(selected.dateDebut).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
-              {selected.dateFin && <div>⏱ Fin : {new Date(selected.dateFin).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" })}</div>}
+              <div>📅 {fmtDate(selected.dateDebut, { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+              {selected.dateFin && <div>⏱ Fin : {fmtDate(selected.dateFin, { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" })}</div>}
             </div>
 
             <div>
@@ -192,7 +193,7 @@ export default function CalendrierView({ evenements }: { evenements: Evenement[]
                     className="w-full text-left px-3 py-2 rounded-lg bg-white/3 hover:bg-white/5 transition-colors">
                     <p className="text-white text-xs font-medium truncate">{e.titre}</p>
                     <p className="text-white/30 text-xs">
-                      {new Date(e.dateDebut).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
+                      {fmtDate(e.dateDebut, { day: "2-digit", month: "short" })}
                     </p>
                   </button>
                 ))}

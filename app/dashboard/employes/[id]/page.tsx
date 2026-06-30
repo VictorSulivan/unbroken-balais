@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import EmployeEditForm from "@/components/employes/EmployeEditForm";
+import { fmtDate } from "@/utils/formatDate";
 
 export default async function EmployePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -90,9 +91,7 @@ export default async function EmployePage({ params }: { params: Promise<{ id: st
                   )}
                 </div>
                 <span className="text-white/30 text-xs">
-                  {new Date(h.dateChangement).toLocaleDateString("fr-FR", {
-                    day: "2-digit", month: "short", year: "numeric",
-                  })}
+                  {fmtDate(h.dateChangement, { day: "2-digit", month: "short", year: "numeric" })}
                 </span>
               </div>
             ))}
@@ -111,9 +110,7 @@ export default async function EmployePage({ params }: { params: Promise<{ id: st
                 <div className="flex items-center gap-4">
                   <span className="text-white">${v.montantTotal.toFixed(0)}</span>
                   <span className="text-white/30 text-xs">
-                    {new Date(v.dateVente).toLocaleDateString("fr-FR", {
-                      day: "2-digit", month: "short",
-                    })}
+                    {fmtDate(v.dateVente, { day: "2-digit", month: "short" })}
                   </span>
                 </div>
               </div>

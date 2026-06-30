@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import Link from "next/link";
+import { fmtDate } from "@/utils/formatDate";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +50,7 @@ export default async function HistoriqueRestocksPage() {
                 restocks.map((r) => (
                   <tr key={r.id} className="hover:bg-white/1 transition-colors">
                     <td className="p-4 text-white/60">
-                      {new Date(r.dateRestock).toLocaleDateString("fr-FR", {
-                        day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
-                      })}
+                      {fmtDate(r.dateRestock, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </td>
                     <td className="p-4 font-medium text-[#c4bbff]">
                       {r.employe.prenom} {r.employe.nom}
