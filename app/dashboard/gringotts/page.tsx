@@ -88,7 +88,7 @@ export default async function GringottsPage() {
               href="/dashboard/gringotts/historique"
               className="text-xs text-[#a89af9] hover:underline"
             >
-              Voir tout l'historique →
+              Voir tout l&apos;historique →
             </Link>
           </div>
         </div>

@@ -45,7 +45,7 @@ export function ResumeTextuel({
         .{" "}
         {topEmploye && (
           <>
-            L'employé le plus contributeur est{" "}
+            L&apos;employé le plus contributeur est{" "}
             <span className="text-white/80">{topEmploye.nom}</span> avec{" "}
             <span className="text-green-400">${fmt(topEmploye.gains)}</span>{" "}
             générés sur {topEmploye.nbTransactions} transaction

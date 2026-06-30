@@ -31,7 +31,7 @@ export default function NouveauRestockForm({ produits }: { produits: Produit[] }
     setLignes(lignes.filter((_, i) => i !== index));
   };
 
-  const handleChangeLigne = (index: number, champ: keyof LigneRestock, valeur: any) => {
+  const handleChangeLigne = (index: number, champ: keyof LigneRestock, valeur: string | number) => {
     const nouvellesLignes = [...lignes];
     nouvellesLignes[index] = { ...nouvellesLignes[index], [champ]: valeur };
     setLignes(nouvellesLignes);
@@ -75,8 +75,8 @@ export default function NouveauRestockForm({ produits }: { produits: Produit[] }
 
       router.push("/dashboard/stock");
       router.refresh();
-    } catch (err: any) {
-      setErreur(err.message);
+    } catch (err: unknown) {
+      setErreur(err instanceof Error ? err.message : "Erreur");
     } finally {
       setLoading(false);
     }

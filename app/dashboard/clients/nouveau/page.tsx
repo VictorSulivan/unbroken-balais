@@ -80,7 +80,7 @@ export default function NouveauClient() {
         {/* Entreprise cliente */}
         {form.typeClient === "entreprise" && (
           <div>
-            <label className="block text-xs text-white/40 mb-1.5">Nom de l'entreprise</label>
+            <label className="block text-xs text-white/40 mb-1.5">Nom de l&apos;entreprise</label>
             <input value={form.entrepriseClienteNom}
               onChange={(e) => set("entrepriseClienteNom", e.target.value)}
               className="input-dark" placeholder="Maze Bank" />

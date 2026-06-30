@@ -26,7 +26,7 @@ export default function NouveauClientModal({ onClose, onCreated }: { onClose: ()
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-white font-medium text-lg">Nouveau client</h2>
-            <p className="text-white/40 text-xs mt-0.5">Ajouter au registre et l'ajouter à l'événement</p>
+            <p className="text-white/40 text-xs mt-0.5">Ajouter au registre et l&apos;ajouter à l&apos;événement</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-colors">✕</button>
         </div>
@@ -46,7 +46,7 @@ export default function NouveauClientModal({ onClose, onCreated }: { onClose: ()
           <div><label className="block text-xs text-white/40 mb-1.5">Nom</label><input value={form.nom} onChange={(e) => set("nom", e.target.value)} className="input-dark" placeholder="De Santa" onKeyDown={(e) => e.key === "Enter" && handleSubmit()} /></div>
         </div>
         {form.typeClient === "entreprise" && (
-          <div><label className="block text-xs text-white/40 mb-1.5">Nom de l'entreprise</label><input value={form.entrepriseClienteNom} onChange={(e) => set("entrepriseClienteNom", e.target.value)} className="input-dark" placeholder="Maze Bank" /></div>
+          <div><label className="block text-xs text-white/40 mb-1.5">Nom de l&apos;entreprise</label><input value={form.entrepriseClienteNom} onChange={(e) => set("entrepriseClienteNom", e.target.value)} className="input-dark" placeholder="Maze Bank" /></div>
         )}
         {error && <p className="text-red-400 text-sm">{error}</p>}
         <div className="flex gap-3 pt-1">

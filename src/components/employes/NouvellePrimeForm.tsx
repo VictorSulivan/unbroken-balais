@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const TYPES = ["manuel", "performance", "anciennete", "exceptionnel"];
 
-export default function NouvelleprimeForm({ employes }: { employes: any[] }) {
+export default function NouvelleprimeForm({ employes }: { employes: { id: number; prenom: string; nom: string }[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

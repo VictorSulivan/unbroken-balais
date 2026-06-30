@@ -116,7 +116,7 @@ export default async function StockPage() {
             href="/dashboard/stock/historique" 
             className="text-xs text-[#c4bbff] hover:text-white border border-[#3d3580] hover:bg-[#2a2250] px-3 py-1.5 rounded-lg font-medium transition-colors"
           >
-            Voir l'historique complet →
+            Voir l&apos;historique complet →
           </Link>
         </div>
 

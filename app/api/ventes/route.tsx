@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as any;
+  const user = session.user;
   const body = await req.json();
   const { clientId, lignes, extras } = body; 
   // lignes attendues : Array<{ produitId: number, quantite: number, prixEtudiant: boolean, prixEmploye: boolean }>
@@ -52,11 +52,11 @@ export async function POST(req: Request) {
 
         // Conversion des champs Decimal de Prisma en Number
         const prixVenteDeBase = typeof produitBDD.prixVente === 'object' && produitBDD.prixVente !== null && 'toNumber' in produitBDD.prixVente
-          ? (produitBDD.prixVente as any).toNumber()
+          ? (produitBDD.prixVente as { toNumber: () => number }).toNumber()
           : Number(produitBDD.prixVente);
 
         const prixAchatDeBase = typeof produitBDD.prixAchat === 'object' && produitBDD.prixAchat !== null && 'toNumber' in produitBDD.prixAchat
-          ? (produitBDD.prixAchat as any).toNumber()
+          ? (produitBDD.prixAchat as { toNumber: () => number }).toNumber()
           : Number(produitBDD.prixAchat);
 
         // Détermination du prix final unitaire selon l'option choisie
@@ -79,8 +79,9 @@ export async function POST(req: Request) {
         });
       }
 
-      const totalExtras = (extras ?? []).reduce(
-        (acc: number, e: any) => acc + e.montant, 0
+      type Extra = { label: string; montant: number };
+      const totalExtras = ((extras ?? []) as Extra[]).reduce(
+        (acc: number, e: Extra) => acc + e.montant, 0
       );
       
       const montantTotal = totalProduitsCalculs + totalExtras;
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
 
       // Création du reçu comptable de l'opération
       const extrasDesc = (extras ?? []).length > 0
-        ? ` + extras: ${(extras as any[]).map((e: any) => `${e.label} (${e.montant}) Mornilles`).join(", ")}`
+        ? ` + extras: ${(extras as Extra[]).map((e) => `${e.label} (${e.montant}) Mornilles`).join(", ")}`
         : "";
 
       await tx.transactionGringotts.create({
@@ -130,7 +131,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(vente, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Erreur lors de la transaction" }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Erreur lors de la transaction";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
