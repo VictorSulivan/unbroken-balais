@@ -7,7 +7,7 @@ import AccesHabilitations from "@/components/employes/AccesHabilitations";
 export default async function EmployePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
-  const isPatron = session?.user.role === "patron";
+  const isPatron = ["patron", "admin", "co_patron"].includes(session?.user.role ?? "");
 
   const employe = await prisma.employe.findUnique({
     where: { id: parseInt(id) },
@@ -79,7 +79,6 @@ export default async function EmployePage({ params }: { params: Promise<{ id: st
       {isPatron && (
         <AccesHabilitations
           employeId={employe.id}
-          acceesCompta={employe.acceesCompta}
           acceesIllegal={employe.acceesIllegal}
         />
       )}
