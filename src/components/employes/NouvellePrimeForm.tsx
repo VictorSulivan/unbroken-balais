@@ -3,25 +3,55 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+type Employe = {
+  id: number;
+  nom: string;
+  prenom: string;
+  pourcentagePrime: number | null;
+};
+
+type Props = {
+  employes: Employe[];
+  ventesParEmploye: Record<number, number>;
+  semestreActuel: number;
+  anneeActuelle: number;
+};
+
 const TYPES = ["manuel", "performance", "anciennete", "exceptionnel"];
 
-export default function NouvelleprimeForm({ employes }: { employes: any[] }) {
+export default function NouvelleprimeForm({ employes, ventesParEmploye, semestreActuel, anneeActuelle }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const now = new Date();
   const [form, setForm] = useState({
     employeId: "",
     montant: "",
     typePrime: "manuel",
     commentaire: "",
-    semestre: now.getMonth() < 6 ? "1" : "2",
-    annee: now.getFullYear().toString(),
+    semestre: semestreActuel.toString(),
+    annee: anneeActuelle.toString(),
   });
 
   function set(key: string, val: string) {
     setForm((f) => ({ ...f, [key]: val }));
+  }
+
+  const employeSelectionne = employes.find((e) => e.id.toString() === form.employeId);
+  const estSemestreActuel =
+    parseInt(form.semestre) === semestreActuel && parseInt(form.annee) === anneeActuelle;
+
+  const ventesEmploye =
+    employeSelectionne && estSemestreActuel
+      ? (ventesParEmploye[employeSelectionne.id] ?? 0)
+      : null;
+
+  // Taux = pourcentagePrime de l'employé si défini, sinon 20% flat
+  const taux = employeSelectionne?.pourcentagePrime ?? 20;
+  const suggestionPrime = ventesEmploye !== null ? Math.round(ventesEmploye * taux / 100) : null;
+
+  function appliquerSuggestion() {
+    if (suggestionPrime !== null) set("montant", suggestionPrime.toString());
   }
 
   async function handleSubmit() {
@@ -60,7 +90,10 @@ export default function NouvelleprimeForm({ employes }: { employes: any[] }) {
                   ? "bg-[#2a2250] border-[#3d3580] text-[#c4bbff]"
                   : "bg-[#0f0f1a] border-white/10 text-white/50 hover:text-white hover:border-white/20"
               }`}>
-              {e.prenom} {e.nom}
+              <span>{e.prenom} {e.nom}</span>
+              {e.pourcentagePrime != null && (
+                <span className="block text-xs opacity-50">{e.pourcentagePrime}%</span>
+              )}
             </button>
           ))}
         </div>
@@ -83,12 +116,31 @@ export default function NouvelleprimeForm({ employes }: { employes: any[] }) {
         </div>
       </div>
 
-      {/* Montant */}
+      {/* Montant + suggestion Gringotts */}
       <div>
-        <label className="block text-xs text-white/40 mb-1.5">Montant (mornilles)</label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-xs text-white/40">Montant (mornilles)</label>
+          {suggestionPrime !== null && suggestionPrime > 0 && (
+            <button
+              type="button"
+              onClick={appliquerSuggestion}
+              className="text-xs text-[#a89af9] hover:text-[#c4bbff] transition-colors"
+            >
+              ↗ {taux}% des ventes = ${suggestionPrime.toLocaleString()}
+            </button>
+          )}
+        </div>
         <input type="number" min={0} value={form.montant}
           onChange={(e) => set("montant", e.target.value)}
           className="input-dark" placeholder="1000" />
+        {employeSelectionne && estSemestreActuel && ventesEmploye === 0 && (
+          <p className="text-xs text-white/20 mt-1">Aucune vente ce semestre</p>
+        )}
+        {employeSelectionne && !estSemestreActuel && (
+          <p className="text-xs text-white/20 mt-1">
+            Calcul auto disponible pour S{semestreActuel}/{anneeActuelle} uniquement
+          </p>
+        )}
       </div>
 
       {/* Semestre / Année */}

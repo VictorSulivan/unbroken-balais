@@ -1,11 +1,14 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/auth";
 import CalculateurTaxe from "@/components/gringotts/CalculateurTaxe";
+import TransactionActions from "@/components/gringotts/TransactionActions";
 import Link from "next/link";
 
 const POSITIF = ["vente", "versement"];
 
 export default async function GringottsPage() {
-  const [gringotts, transactions] = await Promise.all([
+  const [session, gringotts, transactions] = await Promise.all([
+    auth(),
     prisma.gringotts.findFirst({ include: { entreprise: true } }),
     prisma.transactionGringotts.findMany({
       orderBy: { createdAt: "desc" },
@@ -14,6 +17,7 @@ export default async function GringottsPage() {
     }),
   ]);
 
+  const canEdit = ["patron", "admin", "co_patron"].includes(session?.user.role ?? "");
   const solde = gringotts?.solde ?? 0;
 
   const aujourd = new Date();
@@ -100,13 +104,14 @@ export default async function GringottsPage() {
               <th className="text-left px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Employé</th>
               <th className="text-right px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Montant</th>
               <th className="text-right px-5 py-3 text-white/30 font-medium text-xs uppercase tracking-wider">Date</th>
+              {canEdit && <th className="px-5 py-3 w-20" />}
             </tr>
           </thead>
           <tbody>
             {transactions.map((t) => {
               const isPositif = POSITIF.includes(t.typeTransaction ?? "");
               return (
-                <tr key={t.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
+                <tr key={t.id} className="group border-b border-white/5 hover:bg-white/2 transition-colors">
                   <td className="px-5 py-4">
                     <span className={`text-xs px-2 py-1 rounded-full border ${typeBadge[t.typeTransaction ?? ""] ?? "bg-white/5 text-white/40 border-white/10"}`}>
                       {t.typeTransaction ?? "—"}
@@ -124,6 +129,11 @@ export default async function GringottsPage() {
                       day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
                     })}
                   </td>
+                  {canEdit && (
+                    <td className="px-3 py-4">
+                      <TransactionActions t={t} />
+                    </td>
+                  )}
                 </tr>
               );
             })}
