@@ -5,9 +5,6 @@ import { KpiGrid } from "@/components/gringotts/KpiGrid";
 import { RepartitionTypes } from "@/components/gringotts/RepartitionTypes";
 import { ResumeTextuel } from "@/components/gringotts/ResumeTextuel";
 import { prisma }             from "@/lib/db/prisma";
-import { auth }               from "@/lib/auth/auth";
-import { getAcces }           from "@/utils/acces";
-import { redirect }           from "next/navigation";
 import Link                   from "next/link";
 
 import {
@@ -36,10 +33,6 @@ interface PageProps {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function AnalyseGringottsPage({ searchParams }: PageProps) {
-  const session = await auth();
-  const acces = await getAcces(session?.user.employeId ?? null, session?.user.role ?? "");
-  if (!acces.compta) redirect("/dashboard");
-
   const params  = await searchParams;
   const periode = (params.periode ?? "30j") as Periode;
   const debut   = params.debut;

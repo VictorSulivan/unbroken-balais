@@ -1,16 +1,10 @@
 import { prisma } from "@/lib/db/prisma";
-import { auth } from "@/lib/auth/auth";
-import { getAcces } from "@/utils/acces";
-import { redirect } from "next/navigation";
 import CalculateurTaxe from "@/components/gringotts/CalculateurTaxe";
 import Link from "next/link";
 
 const POSITIF = ["vente", "versement"];
 
 export default async function GringottsPage() {
-  const session = await auth();
-  const acces = await getAcces(session?.user.employeId ?? null, session?.user.role ?? "");
-  if (!acces.compta) redirect("/dashboard");
   const [gringotts, transactions] = await Promise.all([
     prisma.gringotts.findFirst({ include: { entreprise: true } }),
     prisma.transactionGringotts.findMany({

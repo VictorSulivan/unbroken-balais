@@ -8,7 +8,6 @@ export async function getAcces(employeId: string | null, role: string) {
     select: { acceesCompta: true, acceesIllegal: true },
   });
   return {
-    compta: (emp?.acceesIllegal || emp?.acceesCompta) ?? false,
     illegal: emp?.acceesIllegal ?? false,
   };
 }

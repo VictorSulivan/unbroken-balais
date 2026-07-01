@@ -1,7 +1,4 @@
 import { prisma } from "@/lib/db/prisma";
-import { auth } from "@/lib/auth/auth";
-import { getAcces } from "@/utils/acces";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 
 const POSITIF = ["vente", "versement"];
@@ -22,9 +19,6 @@ interface PageProps {
 }
 
 export default async function HistoriqueGringottsPage({ searchParams }: PageProps) {
-  const session = await auth();
-  const acces = await getAcces(session?.user.employeId ?? null, session?.user.role ?? "");
-  if (!acces.compta) redirect("/dashboard");
 
   const params = await searchParams;
   const currentType = params.type || "";
