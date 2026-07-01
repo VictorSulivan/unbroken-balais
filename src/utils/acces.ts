@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/db/prisma";
 
+const ROLES_ILLEGAL_AUTO = ["patron", "admin", "co_patron"];
+
 export async function getAcces(employeId: string | null, role: string) {
-  if (role === "patron") return { compta: true, illegal: true };
-  if (!employeId) return { compta: false, illegal: false };
+  if (ROLES_ILLEGAL_AUTO.includes(role)) return { illegal: true };
+  if (!employeId) return { illegal: false };
   const emp = await prisma.employe.findUnique({
     where: { id: parseInt(employeId) },
-    select: { acceesCompta: true, acceesIllegal: true },
+    select: { acceesIllegal: true },
   });
-  return {
-    illegal: emp?.acceesIllegal ?? false,
-  };
+  return { illegal: emp?.acceesIllegal ?? false };
 }

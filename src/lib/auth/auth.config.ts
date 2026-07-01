@@ -6,15 +6,6 @@ export const authConfig = {
   },
   providers: [], // On laisse vide ici, géré dans le gros fichier auth.ts
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-        token.role = user.role;
-        token.employeId = user.employeId;
-      }
-      return token;
-    },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
