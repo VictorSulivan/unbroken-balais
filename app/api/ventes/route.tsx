@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
+import { getAcces } from "@/utils/acces";
 
 export async function GET() {
   const session = await auth();
@@ -22,24 +23,27 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as any;
   const body = await req.json();
-  const { clientId, lignes, extras } = body; 
-  // lignes attendues : Array<{ produitId: number, quantite: number, prixEtudiant: boolean, prixEmploye: boolean }>
+  type Ligne = { produitId: number; quantite: number; prixEtudiant?: boolean; prixEmploye?: boolean };
+  type Extra = { label: string; montant: number };
+  const { clientId, lignes, extras }: { clientId: number; lignes: Ligne[]; extras: Extra[] } = body;
 
   if (!clientId || (!lignes?.length && !extras?.length)) {
     return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
   }
 
   const employe = await prisma.employe.findFirst({
-    where: { utilisateur: { id: parseInt(user.id) } },
+    where: { utilisateur: { id: parseInt(session.user.id) } },
   });
   if (!employe) return NextResponse.json({ error: "Employé introuvable" }, { status: 400 });
+
+  const acces = await getAcces(session.user.employeId ?? null, session.user.role ?? "");
 
   try {
     const vente = await prisma.$transaction(async (tx) => {
       let totalProduitsCalculs = 0;
       const produitsCreatePayload = [];
+      let venteIllegale: boolean = false;
 
       for (const l of lignes ?? []) {
         const produitBDD = await tx.produit.findUnique({
@@ -50,18 +54,14 @@ export async function POST(req: Request) {
           throw new Error(`Produit #${l.produitId} introuvable en base.`);
         }
 
-        // Conversion des champs Decimal de Prisma en Number
-        const prixVenteDeBase = typeof produitBDD.prixVente === 'object' && produitBDD.prixVente !== null && 'toNumber' in produitBDD.prixVente
-          ? (produitBDD.prixVente as any).toNumber()
-          : Number(produitBDD.prixVente);
+        if (produitBDD.illegal) venteIllegale = true;
 
-        const prixAchatDeBase = typeof produitBDD.prixAchat === 'object' && produitBDD.prixAchat !== null && 'toNumber' in produitBDD.prixAchat
-          ? (produitBDD.prixAchat as any).toNumber()
-          : Number(produitBDD.prixAchat);
+        const prixVenteDeBase = Number(produitBDD.prixVente);
+        const prixAchatDeBase = Number(produitBDD.prixAchat);
 
         // Détermination du prix final unitaire selon l'option choisie
         let prixUnitaireFinal = prixVenteDeBase;
-        
+
         if (l.prixEmploye) {
           prixUnitaireFinal = prixAchatDeBase; // Prix d'achat direct
         } else if (l.prixEtudiant) {
@@ -79,19 +79,22 @@ export async function POST(req: Request) {
         });
       }
 
-      const totalExtras = (extras ?? []).reduce(
-        (acc: number, e: any) => acc + e.montant, 0
-      );
-      
+      if (venteIllegale && !acces.illegal) {
+        throw new Error("Accès refusé : vente de produits illégaux non autorisée");
+      }
+
+      const totalExtras = (extras ?? []).reduce((acc, e) => acc + e.montant, 0);
+
       const montantTotal = totalProduitsCalculs + totalExtras;
 
       // Création de l'enregistrement de vente
       const v = await tx.vente.create({
         data: {
           employeId: employe.id,
-          clientId: parseInt(clientId),
+          clientId: Number(clientId),
           montantTotal,
           statut: "validee",
+          illegal: Boolean(venteIllegale),
           produits: {
             create: produitsCreatePayload,
           },
@@ -113,7 +116,7 @@ export async function POST(req: Request) {
 
       // Création du reçu comptable de l'opération
       const extrasDesc = (extras ?? []).length > 0
-        ? ` + extras: ${(extras as any[]).map((e: any) => `${e.label} (${e.montant}) Mornilles`).join(", ")}`
+        ? ` + extras: ${(extras ?? []).map((e) => `${e.label} (${e.montant}) Mornilles`).join(", ")}`
         : "";
 
       await tx.transactionGringotts.create({
@@ -130,7 +133,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(vente, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Erreur lors de la transaction" }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Erreur lors de la transaction";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

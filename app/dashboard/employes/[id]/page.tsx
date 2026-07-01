@@ -1,9 +1,13 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/auth";
 import { notFound } from "next/navigation";
 import EmployeEditForm from "@/components/employes/EmployeEditForm";
+import AccesHabilitations from "@/components/employes/AccesHabilitations";
 
 export default async function EmployePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const session = await auth();
+  const isPatron = session?.user.role === "patron";
 
   const employe = await prisma.employe.findUnique({
     where: { id: parseInt(id) },
@@ -70,6 +74,15 @@ export default async function EmployePage({ params }: { params: Promise<{ id: st
 
       {/* Formulaire édition */}
       <EmployeEditForm employe={{ id: employe.id, nom: employe.nom, prenom: employe.prenom, role: employe.role, salaire: employe.salaire, notes: employe.notes }} />
+
+      {/* Habilitations — patron uniquement */}
+      {isPatron && (
+        <AccesHabilitations
+          employeId={employe.id}
+          acceesCompta={employe.acceesCompta}
+          acceesIllegal={employe.acceesIllegal}
+        />
+      )}
 
       {/* Historique rôles */}
       {employe.rolesHistorique.length > 0 && (

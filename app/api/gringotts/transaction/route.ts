@@ -8,14 +8,13 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as any;
   const body = await req.json();
   const { type, montant, description } = body;
 
   if (!type || !montant) return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
 
   const employe = await prisma.employe.findFirst({
-    where: { utilisateur: { id: parseInt(user.id) } },
+    where: { utilisateur: { id: parseInt(session.user.id) } },
   });
 
   const isRetrait = type === "retrait";

@@ -17,14 +17,14 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
-  const { nom, stock, prixAchat, prixVente, description } = body;
+  const { nom, stock, prixAchat, prixVente, description, illegal } = body;
 
   if (!nom || prixAchat == null || prixVente == null) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
   const produit = await prisma.produit.create({
-    data: { nom, stock: stock ?? 0, prixAchat, prixVente, description },
+    data: { nom, stock: stock ?? 0, prixAchat, prixVente, description, illegal: illegal ?? false },
   });
   return NextResponse.json(produit, { status: 201 });
 }

@@ -6,7 +6,6 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as any;
   const body = await req.json();
   const { lignes } = body; // lignes: Array<{ produitId: number, quantite: number }>
 
@@ -15,7 +14,7 @@ export async function POST(req: Request) {
   }
 
   const employe = await prisma.employe.findFirst({
-    where: { utilisateur: { id: parseInt(user.id) } },
+    where: { utilisateur: { id: parseInt(session.user.id) } },
   });
   if (!employe) return NextResponse.json({ error: "Employé introuvable" }, { status: 400 });
 
@@ -74,7 +73,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, restock: resultat }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Erreur lors du restock" }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Erreur lors du restock";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

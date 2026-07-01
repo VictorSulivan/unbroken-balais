@@ -11,7 +11,7 @@ export default async function Dashboard() {
       prisma.produit.count({ where: { actif: true } }),
       prisma.produit.count({ where: { actif: true, stock: { lte: 5 } } }),
       prisma.employe.count({ where: { actif: true } }),
-      prisma.gringotts.findFirst().then((g:any) => g?.solde ?? 0),
+      prisma.gringotts.findFirst().then((g) => g?.solde ?? 0),
       prisma.vente.count({
         where: {
           dateVente: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
@@ -27,14 +27,14 @@ export default async function Dashboard() {
     { label: "Stock critique",     value: stockCritique.toString(),               icon: "📦", alert: stockCritique > 0 },
   ];
 
-  const user = session.user as any;
+  const user = session.user;
 
   return (
     <div>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-medium text-white">Bonjour, {user.username} 👋</h1>
-        <p className="text-white/40 text-sm mt-1">Voici l'état de l'entreprise en temps réel.</p>
+        <p className="text-white/40 text-sm mt-1">Voici l&apos;état de l&apos;entreprise en temps réel.</p>
       </div>
 
       {/* Stats */}

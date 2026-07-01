@@ -23,7 +23,12 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
-  const { titre, type, dateDebut, dateFin, description, responsableId, employeIds, clientIds, consommations } = body;
+  type ClientPayload = { clientId: number; nbPersonnes?: number; commentaire?: string };
+  type ConsommationPayload = { produitId: number; quantite: number; prixUnitaire: number };
+  const { titre, type, dateDebut, dateFin, description, responsableId, employeIds, clientIds, consommations }: {
+    titre: string; type: "reservation" | "soiree"; dateDebut: string; dateFin?: string; description?: string;
+    responsableId?: string; employeIds?: number[]; clientIds?: ClientPayload[]; consommations?: ConsommationPayload[];
+  } = body;
 
   if (!titre || !type || !dateDebut) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
@@ -45,14 +50,14 @@ export async function POST(req: Request) {
         create: (employeIds ?? []).map((id: number) => ({ employeId: id })),
       },
       clients: {
-        create: (clientIds ?? []).map((c: any) => ({
+        create: (clientIds ?? []).map((c) => ({
           clientId: c.clientId,
           nbPersonnes: c.nbPersonnes ?? 1,
           commentaire: c.commentaire ?? null,
         })),
       },
       consommations: {
-        create: (consommations ?? []).map((c: any) => ({
+        create: (consommations ?? []).map((c) => ({
           produitId: c.produitId,
           quantite: c.quantite,
           prixUnitaire: c.prixUnitaire,

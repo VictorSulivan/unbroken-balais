@@ -1,11 +1,28 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/auth";
+import { getAcces } from "@/utils/acces";
 import Link from "next/link";
 import StockActions from "@/components/stock/StockActions";
 
-export default async function StockPage() {
-  // 1. Récupération parallèle des produits et des 5 derniers restocks
+type Props = { searchParams: Promise<{ vue?: string }> };
+
+export default async function StockPage({ searchParams }: Props) {
+  const session = await auth();
+  const acces = await getAcces(session?.user.employeId ?? null, session?.user.role ?? "");
+  const { vue } = await searchParams;
+
+  const filtreIllegal =
+    !acces.illegal ? false
+    : vue === "legal" ? false
+    : vue === "illegal" ? true
+    : undefined;
+
   const [produits, derniersRestocks] = await Promise.all([
     prisma.produit.findMany({
+      where: {
+        actif: true,
+        ...(filtreIllegal !== undefined && { illegal: filtreIllegal }),
+      },
       orderBy: { nom: "asc" },
     }),
     prisma.restock.findMany({
@@ -20,6 +37,8 @@ export default async function StockPage() {
     }),
   ]);
 
+  const vueActive = acces.illegal ? (vue ?? "tous") : "legal";
+
   return (
     <div className="space-y-10">
       {/* SECTION PRODUITS */}
@@ -27,10 +46,31 @@ export default async function StockPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-medium text-white">Stock & Produits</h1>
-            <p className="text-white/40 text-sm mt-1">{produits.length} produits au total</p>
+            <p className="text-white/40 text-sm mt-1">{produits.length} produits</p>
           </div>
-          
+
           <div className="flex items-center gap-3">
+            {acces.illegal && (
+              <div className="flex rounded-lg border border-white/10 overflow-hidden text-xs">
+                {[
+                  { key: "tous", label: "Tous" },
+                  { key: "legal", label: "Légaux" },
+                  { key: "illegal", label: "Illégaux" },
+                ].map(({ key, label }) => (
+                  <Link
+                    key={key}
+                    href={`/dashboard/stock?vue=${key}`}
+                    className={`px-3 py-1.5 transition-colors ${
+                      vueActive === key
+                        ? "bg-[#2a2250] text-[#c4bbff]"
+                        : "text-white/40 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
             <Link
               href="/dashboard/stock/restock"
               className="flex items-center gap-2 bg-[#2a2250] hover:bg-[#342b6e] border border-[#3d3580] text-[#c4bbff] text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
@@ -61,7 +101,16 @@ export default async function StockPage() {
             <tbody>
               {produits.map((p) => (
                 <tr key={p.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-4 text-white font-medium">{p.nom}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium">{p.nom}</span>
+                      {acces.illegal && p.illegal && (
+                        <span className="text-xs px-1.5 py-0.5 rounded border bg-red-500/10 text-red-400 border-red-500/20">
+                          illégal
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-5 py-4 text-right">
                     <span className={`font-medium ${p.stock <= 5 ? "text-orange-400" : "text-white"}`}>
                       {p.stock}
@@ -102,11 +151,11 @@ export default async function StockPage() {
             <h2 className="text-lg font-medium text-white">Derniers Réapprovisionnements</h2>
             <p className="text-white/40 text-xs mt-0.5">Aperçu des 5 derniers restocks</p>
           </div>
-          <Link 
-            href="/dashboard/stock/historique" 
+          <Link
+            href="/dashboard/stock/historique"
             className="text-xs text-[#c4bbff] hover:text-white border border-[#3d3580] hover:bg-[#2a2250] px-3 py-1.5 rounded-lg font-medium transition-colors"
           >
-            Voir l'historique complet →
+            Voir l&apos;historique complet →
           </Link>
         </div>
 
@@ -120,7 +169,8 @@ export default async function StockPage() {
                   <div>
                     <div className="text-xs text-white/40">
                       {new Date(r.dateRestock).toLocaleDateString("fr-FR", {
-                        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
+                        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                        timeZone: "Europe/Paris",
                       })}
                       {" · par "}
                       <span className="text-[#c4bbff] font-medium">{r.employe.prenom} {r.employe.nom}</span>

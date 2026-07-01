@@ -10,7 +10,6 @@ const NAV = [
   { href: "/dashboard/ventes",          label: "Ventes",     icon: "💰" },
   { href: "/dashboard/stock",           label: "Stock",      icon: "📦" },
   { href: "/dashboard/clients",         label: "Clients",    icon: "👥" },
-  { href: "/dashboard/gringotts",       label: "Gringotts",  icon: "🏦" },
   { href: "/dashboard/calendrier",      label: "Calendrier", icon: "📅" },
 ];
 
@@ -25,6 +24,7 @@ const ADMIN_NAV = [
 
 type Props = {
   user: { username: string; role: string; name?: string | null };
+  acces: { compta: boolean; illegal: boolean };
 };
 
 function NavLink({ href, label, icon }: { href: string; label: string; icon: string }) {
@@ -45,7 +45,7 @@ function NavLink({ href, label, icon }: { href: string; label: string; icon: str
   );
 }
 
-export default function Sidebar({ user }: Props) {
+export default function Sidebar({ user, acces }: Props) {
   const pathname = usePathname();
   const isAdmin = user.role === "admin" || user.role === "patron";
 
@@ -73,6 +73,18 @@ export default function Sidebar({ user }: Props) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {NAV.map((item) => <NavLink key={item.href} {...item} />)}
+
+        {acces.compta && (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <p className="text-white/20 text-xs uppercase tracking-widest">Finances</p>
+            </div>
+            <NavLink href="/dashboard/gringotts" label="Gringotts" icon="🏦" />
+            {acces.illegal && (
+              <NavLink href="/dashboard/gringotts/illegal" label="Gringotts illégal" icon="💀" />
+            )}
+          </>
+        )}
 
         <div className="pt-3 pb-1 px-3">
           <p className="text-white/20 text-xs uppercase tracking-widest">RH</p>

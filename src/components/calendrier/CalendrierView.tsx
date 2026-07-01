@@ -90,7 +90,7 @@ export default function CalendrierView({ evenements }: { evenements: Evenement[]
               const evs = jour ? getEvenementsJour(jour) : [];
               const isToday = jour === now.getDate() && mois === now.getMonth() && annee === now.getFullYear();
               return (
-                <div key={i} className={`min-h-[90px] p-1.5 border-b border-r border-white/5 ${!jour ? "bg-white/2" : "hover:bg-white/3"} transition-colors`}>
+                <div key={i} className={`min-h-22.5 p-1.5 border-b border-r border-white/5 ${!jour ? "bg-white/2" : "hover:bg-white/3"} transition-colors`}>
                   {jour && (
                     <>
                       <div className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full mb-1 ${isToday ? "bg-[#a89af9] text-[#0f0f1a]" : "text-white/40"}`}>

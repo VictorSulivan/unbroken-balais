@@ -96,6 +96,8 @@ model Employe {
   pourcentagePrime      Float?
   actif                 Boolean                @default(true)
   notes                 String?
+  acceesCompta          Boolean                @default(false)
+  acceesIllegal         Boolean                @default(false)
   createdAt             DateTime               @default(now())
   contrats              Contrat[]
   ventes                Vente[]
@@ -131,6 +133,7 @@ model Produit {
   prixAchat     Float
   prixVente     Float
   actif         Boolean                 @default(true)
+  illegal       Boolean                 @default(false)
   ventes        VenteProduit[]
   evenements    EvenementConsommation[] @relation("EvenementProduits")
   restocks      RestockProduit[]       
@@ -145,6 +148,7 @@ model Vente {
   client       Client                 @relation(fields: [clientId], references: [id])
   montantTotal Float                  @default(0)
   statut       StatutVente            @default(en_cours)
+  illegal      Boolean                @default(false)
   dateVente    DateTime               @default(now())
   produits     VenteProduit[]
   transactions TransactionGringotts[]

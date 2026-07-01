@@ -24,6 +24,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
+  const isPatron = ["patron", "admin"].includes(session.user.role ?? "");
+  if (!isPatron) return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+
   const { id } = await params;
   const body = await req.json();
   const { role, ...rest } = body;
